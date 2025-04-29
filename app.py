@@ -4,6 +4,7 @@ from db_service import execute_sql
 
 app = Flask(__name__)
 
+
 @app.route("/ask", methods=["POST"])
 def ask():
     data = request.get_json()
@@ -21,15 +22,10 @@ def ask():
     # Execute the query on the database
     try:
         results = execute_sql(sql_query)
-        return jsonify({
-            "sql_query": sql_query,
-            "results": results
-        })
+        return jsonify({"sql_query": sql_query, "results": results})
     except Exception as e:
-        return jsonify({
-            "sql_query": sql_query,
-            "error": str(e)
-        }), 500
+        return jsonify({"sql_query": sql_query, "error": str(e)}), 500
+
 
 if __name__ == "__main__":
     app.run(debug=True, host="0.0.0.0")

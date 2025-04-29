@@ -1,0 +1,19 @@
+version: '3.8'
+
+services:
+  sqlserver:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    ports:
+      - "1433:1433"
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_PID=Developer
+      - SA_PASSWORD=${SQL_PASSWORD}
+    volumes:
+      - ./AdventureWorks2022.bak:/usr/src/AdventureWorks2022.bak
+      - ./restore_mssql.sh:/docker-entrypoint-initdb.d/restore_mssql.sh
+    healthcheck:
+      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "${SQL_PASSWORD}", "-Q", "SELECT 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 10

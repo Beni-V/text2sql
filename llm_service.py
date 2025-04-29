@@ -1,8 +1,17 @@
 import os
 from openai import OpenAI
+from dotenv import load_dotenv
 
-# Initialize the OpenAI client
-client = OpenAI(api_key="okMyFriend")
+try:
+    load_dotenv()  # Loads from .env in same directory
+    client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
+except KeyError as e:
+    raise RuntimeError(
+        f"Missing environment variable: {e}\n"
+        "Please create a .env file with all required credentials.\n"
+        "See .env.example for reference."
+    )
+
 
 PROMPT_TEMPLATE = """
 You are an expert SQL assistant.
@@ -13,15 +22,19 @@ Question: "{question}"
 SQL:
 """
 
+
 def generate_sql_query(question: str) -> str:
     prompt = PROMPT_TEMPLATE.format(question=question)
 
     response = client.chat.completions.create(
         model="gpt-3.5-turbo",
         messages=[
-            {"role": "user", "content": prompt}
-        ]
+            {
+                "role": "system",
+                "content": "You are a SQL expert that generates perfect SQL queries",
+            },
+            {"role": "user", "content": prompt},
+        ],
+        temperature=0,
     )
-
-    sql_query = response.choices[0].message.content
-    return sql_query.strip()
+    return response.choices[0].message.content.strip()

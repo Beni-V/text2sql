@@ -1,13 +1,22 @@
 import os
 import pyodbc
 from contextlib import contextmanager
+# db_service.py
+from dotenv import load_dotenv
+try:
+    load_dotenv()  # Loads from .env in same directory
 
-# Get database connection details from environment variables
-SQL_SERVER = os.environ.get('SQL_SERVER', 'localhost')
-SQL_DATABASE = os.environ.get('SQL_DATABASE', 'AdventureWorks')
-SQL_USER = os.environ.get('SQL_USER', 'SA')
-SQL_PASSWORD = os.environ.get('SQL_PASSWORD', 'YourStrong!Passw0rd')
-
+    # Will fail FAST if any env var is missing
+    SQL_SERVER = os.environ['SQL_SERVER']
+    SQL_DATABASE = os.environ['SQL_DATABASE']
+    SQL_USER = os.environ['SQL_USER']
+    SQL_PASSWORD = os.environ['SQL_PASSWORD']
+except KeyError as e:
+    raise RuntimeError(
+        f"Missing environment variable: {e}\n"
+        "Please create a .env file with all required credentials.\n"
+        "See .env.example for reference."
+    )
 @contextmanager
 def get_db_connection():
     """Context manager for database connections"""
@@ -37,7 +46,7 @@ def execute_sql(sql_query: str, parameters=None):
                     cursor.execute(sql_query, parameters)
                 else:
                     cursor.execute(sql_query)
-                
+
                 if cursor.description:  # If this is a SELECT query
                     return cursor.fetchall()
                 return []
