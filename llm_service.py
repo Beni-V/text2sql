@@ -15,7 +15,7 @@ except KeyError as e:
 
 PROMPT_TEMPLATE = """
 You are an expert SQL assistant.
-Given a natural language question, generate a SQL query using the AdventureWorks2022 database.
+Given a natural language question, generate a SQL query using
 The db is a Microsoft SQL Server
 the query must be a raw query without any prefixes or suffixes
 

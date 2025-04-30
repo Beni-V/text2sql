@@ -1,3 +1,4 @@
+import json
 import os
 import pyodbc
 from contextlib import contextmanager
@@ -48,7 +49,11 @@ def execute_sql(sql_query: str, parameters=None):
                     cursor.execute(sql_query)
 
                 if cursor.description:  # If this is a SELECT query
-                    return cursor.fetchall()
+                    columns = [desc[0] for desc in cursor.description]
+                    return [
+                        {column: json.dumps(value) if isinstance(value, (dict, list, tuple)) else value for column, value in zip(columns, row)}
+                        for row in cursor.fetchall()
+                    ]
                 return []
     except Exception as e:
         raise RuntimeError(f"Query execution failed: {str(e)}")
