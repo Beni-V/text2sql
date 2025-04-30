@@ -1,6 +1,8 @@
 import os
 from openai import OpenAI
 from dotenv import load_dotenv
+from db_service import get_detailed_schema_information
+import json
 
 try:
     load_dotenv()  # Loads from .env in same directory
@@ -13,11 +15,20 @@ except KeyError as e:
     )
 
 
+# Retrieve detailed schema information
+schema_info = get_detailed_schema_information()
+
+# Convert schema to JSON string for the prompt
+schema_json = json.dumps(schema_info, indent=2)
+
 PROMPT_TEMPLATE = """
 You are an expert SQL assistant.
 Given a natural language question, generate a SQL query using
 The db is a Microsoft SQL Server
-the query must be a raw query without any prefixes or suffixes
+The query must be a raw query without any prefixes or suffixes
+
+Database schema (JSON format):
+{schema_json}
 
 Question: "{question}"
 
@@ -26,10 +37,13 @@ SQL:
 
 
 def generate_sql_query(question: str) -> str:
-    prompt = PROMPT_TEMPLATE.format(question=question)
+    prompt = PROMPT_TEMPLATE.format(
+        schema_json=schema_json,
+        question=question
+    )
 
     response = client.chat.completions.create(
-        model="gpt-3.5-turbo",
+        model="gpt-4.1-mini",
         messages=[
             {
                 "role": "system",
@@ -39,4 +53,4 @@ def generate_sql_query(question: str) -> str:
         ],
         temperature=0,
     )
-    return response.choices[0].message.content.strip()
+    return response.choices[0].message.content
