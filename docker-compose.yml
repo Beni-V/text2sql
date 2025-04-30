@@ -9,9 +9,6 @@ services:
       - ACCEPT_EULA=Y
       - MSSQL_PID=Developer
       - SA_PASSWORD=${SQL_PASSWORD}
-    volumes:
-      - ./AdventureWorks2022.bak:/usr/src/AdventureWorks2022.bak
-      - ./restore_mssql.sh:/docker-entrypoint-initdb.d/restore_mssql.sh
     healthcheck:
       test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "${SQL_PASSWORD}", "-Q", "SELECT 1"]
       interval: 10s
