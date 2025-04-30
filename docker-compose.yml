@@ -2,7 +2,7 @@ version: '3.8'
 
 services:
   sqlserver:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    build: .
     ports:
       - "1433:1433"
     environment:
@@ -10,7 +10,7 @@ services:
       - MSSQL_PID=Developer
       - SA_PASSWORD=${SQL_PASSWORD}
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools/bin/sqlcmd", "-U", "sa", "-P", "${SQL_PASSWORD}", "-Q", "SELECT 1"]
+      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-U", "sa", "-P", "${SQL_PASSWORD}", "-d", "-Q", "SELECT 1"]
       interval: 10s
       timeout: 5s
       retries: 10
