@@ -5,7 +5,7 @@ from db_service import get_detailed_schema_information
 import json
 
 try:
-    load_dotenv()  # Loads from .env in same directory
+    load_dotenv()
     client = OpenAI(api_key=os.environ["OPENAI_API_KEY"])
 except KeyError as e:
     raise RuntimeError(
@@ -29,18 +29,14 @@ The query must be a raw query without any prefixes or suffixes
 
 Database schema (JSON format):
 {schema_json}
+END OF DATABASE SCHEMA
 
 Question: "{question}"
-
-SQL:
 """
 
 
 def generate_sql_query(question: str) -> str:
-    prompt = PROMPT_TEMPLATE.format(
-        schema_json=schema_json,
-        question=question
-    )
+    prompt = PROMPT_TEMPLATE.format(schema_json=schema_json, question=question)
 
     response = client.chat.completions.create(
         model="gpt-4.1-mini",
