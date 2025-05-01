@@ -1,4 +1,3 @@
-from typing import Any, Dict
 from openai import OpenAI
 from openai.types.chat import (
     ChatCompletionSystemMessageParam,
@@ -18,7 +17,7 @@ class OpenAILLM:
         except Exception as e:
             raise LLMServiceError(f"Failed to initialize OpenAI service: {str(e)}")
 
-    def generate_text(self, prompt: str, options: Dict[str, Any] = None) -> str:
+    def generate_text(self, prompt: str, options: dict = None) -> str:
         """Generate text using the LLM based on the given prompt."""
         try:
             opts = {"temperature": self._config.openai_temperature}
