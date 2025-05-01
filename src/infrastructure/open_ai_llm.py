@@ -42,7 +42,3 @@ class OpenAILLM:
 
         except Exception as e:
             raise LLMServiceError(f"Text generation failed: {str(e)}")
-
-    def get_model_name(self) -> str:
-        """Get the name of the current LLM model being used."""
-        return self.model
