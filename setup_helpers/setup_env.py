@@ -26,24 +26,26 @@ def generate_env_file():
     print("=== Environment File Generator ===")
     print("This script will create a .env file with the needed configuration.")
     print("For each value, press Enter to use the default or type your custom value.")
-    print("Only the OpenAI API key is required and has no default value.\n")
+    print("Only the OpenAI API key and the backup file path are required and has no default value.\n")
     print("In order to apply the default values, just press Enter.")
-    
+
     # Ask for each environment variable
     for key, default in env_defaults.items():
         user_input = input(f"{key} [default: {default}]: ").strip()
         env_vars[key] = user_input if user_input else default
-    
+
     # Get the OpenAI API key from the user (required)
     openai_api_key = input("OPENAI_API_KEY (required): ").strip()
-    
+    bak_file_path = input("BAK_FILE_PATH (required): ").strip()
+
     # Validate that an API key was provided
-    if not openai_api_key:
-        print("Error: OpenAI API key is required.")
+    if not openai_api_key or not bak_file_path:
+        print("ERROR: OPENAI_API_KEY and BAK_FILE_PATH are required for the .env file to be created.")
         sys.exit(1)
-    
+
     # Add the API key to the environment variables
     env_vars["OPENAI_API_KEY"] = openai_api_key
+    env_vars["BAK_FILE_PATH"] = bak_file_path
     
     # Get the project root directory
     script_dir = os.path.dirname(os.path.abspath(__file__))
