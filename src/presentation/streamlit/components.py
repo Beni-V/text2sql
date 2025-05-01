@@ -1,8 +1,3 @@
-"""
-Streamlit UI components.
-Follows Single Responsibility Principle by separating UI components.
-"""
-
 import streamlit as st
 import pandas as pd
 from typing import Dict, Any, List, Optional
@@ -14,23 +9,11 @@ from src.utils.exceptions import QueryError, QueryGenerationError
 
 
 class SchemaDisplay:
-    """
-    Component for displaying database schema.
-    """
 
     def __init__(self, schema_service: SchemaService):
-        """
-        Initialize with schema service.
-
-        Args:
-            schema_service: Schema service for retrieving schema
-        """
         self.schema_service = schema_service
 
     def render(self):
-        """
-        Render the schema display component.
-        """
         with st.sidebar:
             st.header("Database Schema")
             if st.button("Refresh Schema"):
@@ -42,17 +25,8 @@ class SchemaDisplay:
 
 
 class QueryInput:
-    """
-    Component for inputting natural language queries.
-    """
 
     def render(self) -> Optional[str]:
-        """
-        Render the query input component.
-
-        Returns:
-            Query text if submitted, None otherwise
-        """
         question = st.text_input(
             "Enter your question:",
             placeholder="e.g. Show me all employees in the Sales department",
@@ -68,9 +42,6 @@ class QueryInput:
 
 
 class SQLQueryProcessor:
-    """
-    Component for processing SQL queries.
-    """
 
     def __init__(
         self,
@@ -78,25 +49,11 @@ class SQLQueryProcessor:
         db_service: DatabaseService,
         schema_service: SchemaService,
     ):
-        """
-        Initialize with required services.
-
-        Args:
-            sql_generator: SQL generator service
-            db_service: Database service
-            schema_service: Schema service
-        """
         self.sql_generator = sql_generator
         self.db_service = db_service
         self.schema_service = schema_service
 
     def process_query(self, question: str):
-        """
-        Process a natural language query.
-
-        Args:
-            question: Natural language question
-        """
         with st.spinner("Processing..."):
             try:
                 # Get schema information

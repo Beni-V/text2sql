@@ -1,8 +1,3 @@
-"""
-OpenAI service implementation.
-Implements the LLMService interface.
-"""
-
 from typing import Dict, Any, Optional
 import os
 
@@ -12,18 +7,7 @@ from src.utils.exceptions import LLMServiceError
 
 
 class OpenAIService:
-    """
-    OpenAI implementation of the LLMService interface.
-    Uses OpenAI's API for language model interactions.
-    """
-
     def __init__(self, config: AppConfig):
-        """
-        Initialize with application configuration.
-
-        Args:
-            config: Application configuration with LLM settings
-        """
         self.config = config
         self.llm_config = config.llm_config
 
@@ -39,19 +23,6 @@ class OpenAIService:
     def generate_text(
         self, prompt: str, options: Optional[Dict[str, Any]] = None
     ) -> str:
-        """
-        Generate text using OpenAI's API.
-
-        Args:
-            prompt: The prompt text to send to the LLM
-            options: Additional generation options
-
-        Returns:
-            Generated text response
-
-        Raises:
-            LLMServiceError: If generation fails
-        """
         try:
             # Merge options with defaults
             opts = {"temperature": self.default_temperature}
@@ -84,10 +55,4 @@ class OpenAIService:
             raise LLMServiceError(f"Text generation failed: {str(e)}", original_error=e)
 
     def get_model_name(self) -> str:
-        """
-        Get the name of the currently used model.
-
-        Returns:
-            Model name
-        """
         return self.model

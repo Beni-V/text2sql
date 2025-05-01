@@ -1,8 +1,3 @@
-"""
-Main Streamlit application.
-Implements the presentation layer using Streamlit.
-"""
-
 import streamlit as st
 
 from src.config.app_config import AppConfig
@@ -17,12 +12,6 @@ from src.presentation.streamlit.components import (
 
 
 def configure_page(config: AppConfig):
-    """
-    Configure Streamlit page.
-
-    Args:
-        config: Application configuration
-    """
     streamlit_config = config.streamlit_config
 
     # Set page configuration
@@ -39,12 +28,6 @@ def configure_page(config: AppConfig):
 
 
 def create_app():
-    """
-    Create and configure the Streamlit application.
-
-    Returns:
-        The configured application components
-    """
     # Load configuration
     env_loader = EnvironmentLoader()
     config = AppConfig(env_loader)
@@ -77,9 +60,6 @@ def create_app():
 
 
 def main():
-    """
-    Main application entry point.
-    """
     # Create and configure the application
     app = create_app()
 
