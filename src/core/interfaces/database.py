@@ -7,51 +7,6 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 
 
-class QueryExecutor(ABC):
-    """
-    Abstract interface for executing SQL queries.
-    Separated from connection management according to SRP.
-    """
-
-    @abstractmethod
-    def execute_query(
-        self, query: str, parameters: Optional[Dict[str, Any]] = None
-    ) -> List[Dict[str, Any]]:
-        """
-        Execute a SQL query with optional parameters.
-
-        Args:
-            query: SQL query string
-            parameters: Query parameters
-
-        Returns:
-            List of dictionaries with query results
-
-        Raises:
-            QueryError: If query execution fails
-        """
-        pass
-
-    @abstractmethod
-    def execute_non_query(
-        self, query: str, parameters: Optional[Dict[str, Any]] = None
-    ) -> int:
-        """
-        Execute a non-query SQL statement (INSERT, UPDATE, DELETE).
-
-        Args:
-            query: SQL query string
-            parameters: Query parameters
-
-        Returns:
-            Number of affected rows
-
-        Raises:
-            QueryError: If execution fails
-        """
-        pass
-
-
 class SchemaProvider(ABC):
     """
     Abstract interface for database schema operations.

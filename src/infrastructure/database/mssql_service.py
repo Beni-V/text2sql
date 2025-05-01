@@ -7,14 +7,14 @@ import json
 import time
 from typing import List, Dict, Any, Optional, Tuple
 
-from src.core.interfaces.database import QueryExecutor, SchemaProvider
+from src.core.interfaces.database import SchemaProvider
 from src.infrastructure.database.connection import ConnectionManager
 from src.core.models.database_schema import DatabaseSchema, Table, Column
 from src.core.models.query_result import QueryResult
 from src.utils.exceptions import QueryError, SchemaError
 
 
-class MSSQLService(QueryExecutor, SchemaProvider):
+class MSSQLService(SchemaProvider):
     """
     Microsoft SQL Server service implementation.
     Implements both QueryExecutor and SchemaProvider interfaces.

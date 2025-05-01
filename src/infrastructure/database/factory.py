@@ -5,7 +5,6 @@ Implements Factory Method pattern.
 
 from src.config.app_config import AppConfig
 from src.core.interfaces.database import (
-    QueryExecutor,
     SchemaProvider,
 )
 from src.infrastructure.database.connection import PyODBCConnection, ConnectionManager
@@ -60,7 +59,7 @@ class DatabaseFactory:
         return MSSQLService(connection_manager)
 
     @staticmethod
-    def create_database_service(query_executor: QueryExecutor) -> DatabaseService:
+    def create_database_service(query_executor) -> DatabaseService:
         """
         Create a database service.
 

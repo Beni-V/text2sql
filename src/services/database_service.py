@@ -5,7 +5,6 @@ Implements high-level database operations, following Facade pattern.
 
 from typing import List, Dict, Any, Optional
 
-from src.core.interfaces.database import QueryExecutor
 from src.core.models.query_result import QueryResult
 from src.utils.exceptions import QueryError
 
@@ -16,7 +15,7 @@ class DatabaseService:
     Implements Facade pattern to simplify database operations.
     """
 
-    def __init__(self, query_executor: QueryExecutor):
+    def __init__(self, query_executor):
         """
         Initialize with query executor.
 
