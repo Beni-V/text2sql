@@ -31,11 +31,11 @@ services:
       - SQL_SERVER=sqlserver
       - SQL_PORT=1433
       - SQL_USER=sa
-      - SQL_DATABASE=AdventureWorks2022
+      - SQL_DATABASE=${SQL_DATABASE}
       - SQL_PASSWORD=${SQL_PASSWORD}
       - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - OPENAI_MODEL=gpt-4.1-mini
-      - OPENAI_TEMPERATURE=0
+      - OPENAI_MODEL=${OPENAI_MODEL}
+      - OPENAI_TEMPERATURE=${OPENAI_TEMPERATURE}
     depends_on:
       - sqlserver
     networks:
