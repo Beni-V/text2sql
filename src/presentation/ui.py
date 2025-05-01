@@ -1,7 +1,6 @@
 import pandas as pd
 import streamlit as st
 
-from src.infrastructure.database import Database
 from src.services.database_schema_service import DatabaseSchemaService
 from src.services.llm_text_to_sql_service import LLMTextToSQLService
 
@@ -44,28 +43,44 @@ class SQLQueryProcessor:
     """Processes and executes SQL queries based on user input."""
 
     def __init__(self):
-        self._current_sql_query = None
+        self._llm_service = LLMTextToSQLService()
 
     def process_query(self, question: str):
         with st.spinner("Processing..."):
             try:
-                self._current_sql_query = LLMTextToSQLService().generate_sql(question)
+                # Use the new generate_and_execute_sql method that handles refinement
+                result = self._llm_service.generate_and_execute_sql(question)
+                
+                # Display the SQL query
                 st.success("Generated SQL Query")
-                st.code(self._current_sql_query, language="sql")
-                self._execute_query_and_display_results()
+                st.code(result["query"], language="sql")
+                
+                # Display refinement information if the query was refined
+                if result["refined"]:
+                    with st.expander("Query was refined due to errors", expanded=True):
+                        st.warning(f"Original query had errors and was refined {result['refinement_attempts']} time(s)")
+                        st.markdown("##### Original Query")
+                        st.code(result["original_query"], language="sql")
+                        st.markdown("##### Error Message")
+                        st.code(result["error_message"])
+
+                # Display the query results
+                self._display_results(result["result"])
+                
             except Exception as e:
-                st.error(f"Generation error: {str(e)}")
+                st.error(f"Error: {str(e)}")
 
-    def _execute_query_and_display_results(self):
-        try:
-            result = Database().execute_query(self._current_sql_query)
-            st.success("Query Results")
-
-            if result.get("rows"):
-                df = pd.DataFrame(result.get("rows", []))
-                st.dataframe(df)
-        except Exception as e:
-            st.error(f"Execution error: {str(e)}")
+    def _display_results(self, result):
+        st.success("Query Results")
+        
+        if result.get("rows"):
+            df = pd.DataFrame(result.get("rows", []))
+            st.dataframe(df)
+            
+            # Display query statistics
+            st.info(f"Execution time: {result.get('execution_time', 0):.3f} seconds")
+        else:
+            st.info("Query executed successfully, but returned no results")
 
 
 class UI:
