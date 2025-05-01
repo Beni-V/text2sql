@@ -1,10 +1,10 @@
 import json
 
-from src2.infrastructure.config import EnvConfig
-from src2.infrastructure.database_facade import DatabaseFacade
-from src2.infrastructure.exceptions import QueryGenerationError
-from src2.infrastructure.llm_facade import LLMFacade
-from src2.services.database_schema_service import DatabaseSchemaService
+from src.infrastructure.config import EnvConfig
+from src.infrastructure.database_facade import DatabaseFacade
+from src.infrastructure.exceptions import QueryGenerationError
+from src.infrastructure.llm_facade import LLMFacade
+from src.services.database_schema_service import DatabaseSchemaService
 
 
 class LLMTextToSQLService:

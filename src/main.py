@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify
 
-from src2.infrastructure.config import EnvConfig
-from src2.presentation.ui import UI
-from src2.services.llm_text_to_sql_service import LLMTextToSQLService
+from src.infrastructure.config import EnvConfig
+from src.presentation.ui import UI
+from src.services.llm_text_to_sql_service import LLMTextToSQLService
 
 
 def run_streamlit_app():

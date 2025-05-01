@@ -1,8 +1,8 @@
 from typing import Dict, Any
 
-from src2.infrastructure.database_facade import DatabaseFacade
-from src2.infrastructure.exceptions import SchemaError
-from src2.infrastructure.config import EnvConfig
+from src.infrastructure.database_facade import DatabaseFacade
+from src.infrastructure.exceptions import SchemaError
+from src.infrastructure.config import EnvConfig
 
 
 class DatabaseSchemaService:

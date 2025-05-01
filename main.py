@@ -1,4 +1,4 @@
-from src2.main import run_streamlit_app, create_flask_app
+from src.main import run_streamlit_app, create_flask_app
 import os
 from dotenv import load_dotenv
 

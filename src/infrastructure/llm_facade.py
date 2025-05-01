@@ -3,8 +3,8 @@ from typing import Any, Dict
 
 from openai import OpenAI
 
-from src2.infrastructure.exceptions import LLMServiceError
-from src2.infrastructure.config import EnvConfig
+from src.infrastructure.exceptions import LLMServiceError
+from src.infrastructure.config import EnvConfig
 
 
 class LLMFacade:

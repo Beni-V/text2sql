@@ -5,8 +5,8 @@ from typing import Dict, Any, Optional
 
 import pyodbc
 
-from src2.infrastructure.exceptions import QueryError
-from src2.infrastructure.config import EnvConfig
+from src.infrastructure.exceptions import QueryError
+from src.infrastructure.config import EnvConfig
 
 
 class DatabaseFacade:

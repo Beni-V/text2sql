@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 from typing import Dict, Any, Optional
 
-from src2.services.llm_text_to_sql_service import LLMTextToSQLService
+from src.services.llm_text_to_sql_service import LLMTextToSQLService
 
 
 class SchemaDisplay:
