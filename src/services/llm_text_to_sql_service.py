@@ -1,19 +1,19 @@
-import json
-
 from src.infrastructure.config import EnvConfig
-from src.infrastructure.database_facade import DatabaseFacade
+from src.infrastructure.database import Database
 from src.infrastructure.exceptions import QueryGenerationError
-from src.infrastructure.llm_facade import LLMFacade
+from src.open_ai_llm.open_ai_llm import OpenAILLM
 from src.services.database_schema_service import DatabaseSchemaService
 
 
 class LLMTextToSQLService:
-    DEFAULT_PROMPT_TEMPLATE = """
+    """Service for generating SQL queries from natural language questions using OpenAI LLM."""
+
+    _DEFAULT_PROMPT_TEMPLATE = """
                                 You are an expert SQL assistant for Microsoft SQL Server.
                                 Given a natural language question, generate an accurate SQL query.
                                 
                                 Database schema (JSON format):
-                                {schema_json}
+                                {database_schema}
                                 
                                 Rules:
                                 1. Return ONLY the raw SQL query
@@ -28,35 +28,23 @@ class LLMTextToSQLService:
                             """
 
     def __init__(self, prompt_template: str = None):
-        self.llm_facade = LLMFacade()
-        self.database_facade = DatabaseFacade()
-        self.schema_service = DatabaseSchemaService()
-        self.config = EnvConfig()
-        self.prompt_template = prompt_template or self.DEFAULT_PROMPT_TEMPLATE
+        self._open_ai_llm = OpenAILLM()
+        self._database = Database()
+        self._database_schema_service = DatabaseSchemaService()
+        self._config = EnvConfig()
+        self._prompt_template = prompt_template or self._DEFAULT_PROMPT_TEMPLATE
 
     def generate_sql(self, natural_language_question: str) -> str:
         try:
-            schema_info = self.schema_service.get_schema_information()
-
-            schema_json = (
-                json.dumps(schema_info, indent=2)
-                if not isinstance(schema_info, str)
-                else schema_info
+            prompt = self._construct_prompt(
+                self._database_schema_service.retrieve(), natural_language_question
             )
-
-            prompt = self.prompt_template.format(
-                schema_json=schema_json, question=natural_language_question
-            )
-
-            generated_sql = self.llm_facade.generate_text(prompt)
-
-            return generated_sql
+            return self._open_ai_llm.generate_text(prompt)
 
         except Exception as e:
-            raise QueryGenerationError(
-                f"Failed to generate SQL: {str(e)}", original_error=e
-            )
+            raise QueryGenerationError(f"Failed to generate SQL: {str(e)}")
 
-    def get_model_name(self) -> str:
-        """Get the name of the LLM model being used."""
-        return self.llm_facade.get_model_name()
+    def _construct_prompt(self, database_schema: dict, natural_language_question: str) -> str:
+        return self._prompt_template.format(
+            database_schema=database_schema, question=natural_language_question
+        )

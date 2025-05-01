@@ -7,7 +7,7 @@ from src.infrastructure.exceptions import LLMServiceError
 from src.infrastructure.config import EnvConfig
 
 
-class LLMFacade:
+class OpenAILLM:
     """A facade for LLM operations, providing text generation capabilities."""
 
     def __init__(self):

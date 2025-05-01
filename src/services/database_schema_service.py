@@ -1,67 +1,27 @@
-from typing import Dict, Any
-
-from src.infrastructure.database_facade import DatabaseFacade
-from src.infrastructure.exceptions import SchemaError
 from src.infrastructure.config import EnvConfig
+from src.infrastructure.database import Database
+from src.infrastructure.exceptions import SchemaError
+from src.utils import Singleton
 
 
-class DatabaseSchemaService:
+# class is a singleton sice the schema is static
+class DatabaseSchemaService(metaclass=Singleton):
     """Service for retrieving and managing database schema information."""
 
     def __init__(self):
-        self.database_facade = DatabaseFacade()
+        self.database = Database()
         self._cached_schema = None
         self.config = EnvConfig()
+        self._schema_retrieval_query_result = None
 
-    def get_schema_information(self, use_cache: bool = True) -> Dict[str, Any]:
+    def retrieve(self, use_cache: bool = True) -> dict:
+        """Query the database for schema information. Cache it and return as a dictionary."""
         try:
             if use_cache and self._cached_schema is not None:
                 return self._cached_schema
 
-            # SQL query to get schema information
-            query = """
-            SELECT 
-                TABLE_SCHEMA, 
-                TABLE_NAME, 
-                COLUMN_NAME, 
-                DATA_TYPE, 
-                CHARACTER_MAXIMUM_LENGTH,
-                IS_NULLABLE, 
-                COLUMN_DEFAULT
-            FROM INFORMATION_SCHEMA.COLUMNS
-            ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION;
-            """
-
-            # Execute the query using the DatabaseFacade
-            result = self.database_facade.execute_query(query)
-
-            # Process the results into a structured schema
-            schema = {}
-            for row in result["rows"]:
-                table_name = row["TABLE_NAME"]
-                table_schema_name = row["TABLE_SCHEMA"]
-                column_name = row["COLUMN_NAME"]
-                data_type = row["DATA_TYPE"]
-                char_max_len = row["CHARACTER_MAXIMUM_LENGTH"]
-                is_nullable = row["IS_NULLABLE"]
-                column_default = row["COLUMN_DEFAULT"]
-
-                # Initialize table if it doesn't exist yet
-                if table_name not in schema:
-                    schema[table_name] = {
-                        "table_schema_name": table_schema_name,
-                        "columns": {},
-                    }
-
-                # Add column information
-                schema[table_name]["columns"][column_name] = {
-                    "data_type": data_type,
-                    "character_maximum_length": char_max_len,
-                    "is_nullable": is_nullable,
-                    "column_default": column_default,
-                }
-
-            # Cache the schema
+            query_result = self.database.execute_query(self._schema_retrieval_query)
+            schema = self._construct_schema_as_dict(query_result)
             self._cached_schema = schema
             return schema
 
@@ -69,3 +29,47 @@ class DatabaseSchemaService:
             raise SchemaError(
                 f"Failed to retrieve schema information: {str(e)}", original_error=e
             )
+
+    @staticmethod
+    def _construct_schema_as_dict(query_result: dict) -> dict:
+        """Construct the schema as a dictionary from the query result."""
+        schema = {}
+
+        for row in query_result["rows"]:
+            table_name = row["TABLE_NAME"]
+            table_schema_name = row["TABLE_SCHEMA"]
+            column_name = row["COLUMN_NAME"]
+            data_type = row["DATA_TYPE"]
+            char_max_len = row["CHARACTER_MAXIMUM_LENGTH"]
+            is_nullable = row["IS_NULLABLE"]
+            column_default = row["COLUMN_DEFAULT"]
+
+            if table_name not in schema:
+                schema[table_name] = {
+                    "table_schema_name": table_schema_name,
+                    "columns": {},
+                }
+
+            schema[table_name]["columns"][column_name] = {
+                "data_type": data_type,
+                "character_maximum_length": char_max_len,
+                "is_nullable": is_nullable,
+                "column_default": column_default,
+            }
+
+        return schema
+
+    @property
+    def _schema_retrieval_query(self) -> str:
+        """SQL query to retrieve schema information."""
+        return """
+               SELECT TABLE_SCHEMA,
+                      TABLE_NAME,
+                      COLUMN_NAME,
+                      DATA_TYPE,
+                      CHARACTER_MAXIMUM_LENGTH,
+                      IS_NULLABLE,
+                      COLUMN_DEFAULT
+               FROM INFORMATION_SCHEMA.COLUMNS
+               ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION; \
+               """

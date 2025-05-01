@@ -9,13 +9,9 @@ from src.infrastructure.exceptions import QueryError
 from src.infrastructure.config import EnvConfig
 
 
-class DatabaseFacade:
-    """A facade for database operations, focused on executing queries."""
-
+class Database:
     def __init__(self):
-        # Get configuration from environment
         self.config = EnvConfig()
-
         self.connection_string = (
             f"DRIVER={"ODBC Driver 18 for SQL Server" if os.uname().sysname == "Darwin" else "FreeTDS"};"
             f"SERVER={self.config.db_server};"
@@ -28,16 +24,6 @@ class DatabaseFacade:
     def execute_query(
         self, query: str, parameters: Optional[Dict[str, Any]] = None
     ) -> Dict[str, Any]:
-        """
-        Execute a SQL query and return the results.
-
-        Args:
-            query: SQL query to execute
-            parameters: Optional parameters for the query
-
-        Returns:
-            A dictionary containing the query results with rows, columns, etc.
-        """
         try:
             start_time = time.time()
 
