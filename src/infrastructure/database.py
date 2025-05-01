@@ -18,14 +18,29 @@ class Database(metaclass=Singleton):
     @property
     def _connection_string(self) -> str:
         """Get the connection string for the database."""
-        return (
-            f"DRIVER={"ODBC Driver 18 for SQL Server" if os.uname().sysname == "Darwin" else "FreeTDS"};"
-            f"SERVER={self._config.db_server};"
-            f"DATABASE={self._config.db_name};"
-            f"UID={self._config.db_user};"
-            f"PWD={self._config.db_password};"
-            f"TrustServerCertificate=yes;"
-        )
+        is_macos = os.uname().sysname == "Darwin"
+        
+        if is_macos:
+            # macOS connection for local development
+            return (
+                f"DRIVER=ODBC Driver 18 for SQL Server;"
+                f"SERVER={self._config.db_server};"
+                f"DATABASE={self._config.db_name};"
+                f"UID={self._config.db_user};"
+                f"PWD={self._config.db_password};"
+                f"TrustServerCertificate=yes;"
+            )
+        else:
+            # Docker/Linux FreeTDS connection
+            return (
+                f"DRIVER=FreeTDS;"
+                f"SERVER={self._config.db_server},1433;"  # Include port in SERVER for FreeTDS
+                f"DATABASE={self._config.db_name};"
+                f"UID={self._config.db_user};"
+                f"PWD={self._config.db_password};"
+                f"TDS_Version=7.3;"  # Explicitly set TDS version
+                f"TrustServerCertificate=yes;"
+            )
 
     def execute_query(
         self, query: str, parameters: Optional[Dict[str, Any]] = None

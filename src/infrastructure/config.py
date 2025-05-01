@@ -19,7 +19,7 @@ class EnvConfig(metaclass=Singleton):
 
     @property
     def db_server(self) -> str:
-        return self.get("DB_SERVER", "localhost")
+        return self.get("SQL_SERVER", self.get("DB_SERVER", "localhost"))
 
     @property
     def db_name(self) -> str:
