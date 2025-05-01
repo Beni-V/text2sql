@@ -4,3 +4,4 @@
 *.xml
 *.meta
 *.idea
+.env

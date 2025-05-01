@@ -1,0 +1,26 @@
+# Use the official Microsoft SQL Server image
+FROM mcr.microsoft.com/mssql/server:2022-latest
+
+# Set environment variables
+ENV ACCEPT_EULA=Y \
+    MSSQL_PID=Developer \
+    SA_PASSWORD=${SQL_PASSWORD}
+
+# Copy initialization scripts
+COPY setup_helpers/init.sh /usr/src/app/init.sh
+COPY setup_helpers/restore.sql /usr/src/app/restore.sql
+
+# Create backup directory
+RUN mkdir -p /var/opt/mssql/backup
+
+# Switch to root to change permissions
+USER root
+
+# Grant permissions for the init script to be executable
+RUN chmod +x /usr/src/app/init.sh
+
+# Switch back to the default user
+USER mssql
+
+# Run the init script along with SQL Server
+CMD ["/bin/bash", "-c", "/usr/src/app/init.sh & /opt/mssql/bin/sqlservr"]
