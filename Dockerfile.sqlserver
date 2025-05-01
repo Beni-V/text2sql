@@ -22,5 +22,5 @@ RUN chmod +x /usr/src/app/init.sh
 # Switch back to the default user
 USER mssql
 
-# Run the init script
+# Run the init script along with SQL Server
 CMD ["/bin/bash", "-c", "/usr/src/app/init.sh & /opt/mssql/bin/sqlservr"]
