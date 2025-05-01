@@ -10,6 +10,7 @@ from src.utils.exceptions import QueryError, SchemaError
 
 class QueryExecutor:
     """A facade for executing SQL queries and retrieving results."""
+
     def __init__(self, connection_manager: ConnectionManager):
         self.connection_manager = connection_manager
 

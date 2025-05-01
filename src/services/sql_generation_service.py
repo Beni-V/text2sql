@@ -1,15 +1,15 @@
 from typing import Any, Protocol
 
+from src.infrastructure.llm.openai_service import OpenAIService
+from src.infrastructure.llm.prompt_templates import SQLGenerationPrompt
 from src.utils.exceptions import QueryGenerationError
-
-
-class LLMService(Protocol):
-    def generate_text(self, prompt: str, options: dict[str, Any] | None = None) -> str: ...
 
 
 class LLMSQLGenerator:
 
-    def __init__(self, llm_service: LLMService, prompt_template: str) -> None:
+    def __init__(
+        self, llm_service: OpenAIService, prompt_template: SQLGenerationPrompt
+    ) -> None:
         self.llm_service = llm_service
         self.prompt_template = prompt_template
 

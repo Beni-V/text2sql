@@ -29,6 +29,3 @@ class SQLGenerationPrompt:
             kwargs["schema_json"] = json.dumps(kwargs["schema_json"], indent=2)
 
         return self._template.format(**kwargs)
-
-    def get_raw_template(self) -> str:
-        return self._template

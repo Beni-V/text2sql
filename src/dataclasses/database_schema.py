@@ -5,6 +5,7 @@ from typing import Any
 @dataclass
 class Column:
     """Represents a column in a database table."""
+
     name: str
     data_type: str
     character_maximum_length: int | None = None

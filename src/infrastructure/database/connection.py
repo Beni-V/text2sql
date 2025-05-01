@@ -8,6 +8,7 @@ from src.utils.exceptions import ConnectionError
 
 class Connection:
     """Database connection class. Used to establish and manage database connection."""
+
     def __init__(self, config: AppConfig):
         self.config = config
         self.connection = None
@@ -38,6 +39,7 @@ class Connection:
 
 class ConnectionManager:
     """Provides a context manager for database connections. Manages the `Connection` class."""
+
     def __init__(self, connection):
         self.connection = connection
 

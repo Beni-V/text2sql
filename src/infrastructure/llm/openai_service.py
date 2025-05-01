@@ -20,9 +20,7 @@ class OpenAIService:
                 f"Failed to initialize OpenAI service: {str(e)}", original_error=e
             )
 
-    def generate_text(
-        self, prompt: str, options: dict[str, Any] | None = None
-    ) -> str:
+    def generate_text(self, prompt: str, options: dict[str, Any] | None = None) -> str:
         try:
             # Merge options with defaults
             opts = {"temperature": self.default_temperature}

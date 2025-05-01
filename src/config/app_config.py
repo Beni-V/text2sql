@@ -6,6 +6,7 @@ from .env_loader import EnvironmentLoader
 
 class AppConfig:
     """Application configuration class. Used to store and access configuration values."""
+
     def __init__(self) -> None:
         self.env_loader = EnvironmentLoader()
         self._database_config: dict[str, Any] | None = None
@@ -60,9 +61,7 @@ class AppConfig:
 
     def get_database_connection_string(self) -> str:
         server = self.database_config["SQL_SERVER"]
-        port = os.environ.get(
-            "SQL_PORT", "1433"
-        )
+        port = os.environ.get("SQL_PORT", "1433")
         database = self.database_config["SQL_DATABASE"]
         user = self.database_config["SQL_USER"]
         password = self.database_config["SQL_PASSWORD"]
