@@ -37,7 +37,7 @@ class QueryInput:
                 return question
             else:
                 st.warning("Please enter a question first")
-        
+
         return None
 
 
@@ -55,7 +55,7 @@ class SQLQueryProcessor:
                 sql_query = self.text_to_sql_service.generate_sql(question)
                 st.success("Generated SQL Query")
                 st.code(sql_query, language="sql")
-                
+
                 # Execute SQL
                 self.execute_query(sql_query)
             except Exception as e:
@@ -66,14 +66,14 @@ class SQLQueryProcessor:
         try:
             # Execute query
             result = self.text_to_sql_service.database_facade.execute_query(sql_query)
-            
+
             # Display results
             st.success("Query Results")
-            
+
             if result.get("rows"):
                 df = pd.DataFrame(result.get("rows", []))
                 st.dataframe(df)
-                
+
                 # Add download button
                 csv = df.to_csv(index=False).encode("utf-8")
                 st.download_button(
