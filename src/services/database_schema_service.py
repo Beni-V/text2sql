@@ -4,7 +4,6 @@ from src.infrastructure.exceptions import SchemaError
 from src.utils import Singleton
 
 
-# class is a singleton sice the schema is static
 class DatabaseSchemaService(metaclass=Singleton):
     """Service for retrieving and managing database schema information."""
 
@@ -27,7 +26,7 @@ class DatabaseSchemaService(metaclass=Singleton):
 
         except Exception as e:
             raise SchemaError(
-                f"Failed to retrieve schema information: {str(e)}", original_error=e
+                f"Failed to retrieve schema information: {str(e)}"
             )
 
     @staticmethod

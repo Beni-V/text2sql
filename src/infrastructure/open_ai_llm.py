@@ -11,10 +11,7 @@ class OpenAILLM:
     """A facade for LLM operations, providing text generation capabilities."""
 
     def __init__(self):
-        # Get configuration
         self.config = EnvConfig()
-
-        # Set OpenAI configuration
         self.api_key = self.config.openai_api_key
         self.model = self.config.openai_model
         self.temperature = self.config.openai_temperature

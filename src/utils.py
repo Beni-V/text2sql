@@ -1,8 +1,3 @@
-"""
-Utility classes and functions for the sql2text application.
-"""
-
-
 class Singleton(type):
     """
     A metaclass that can be used to create singleton classes.

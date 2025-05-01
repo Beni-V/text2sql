@@ -1,7 +1,7 @@
 from src.infrastructure.config import EnvConfig
 from src.infrastructure.database import Database
 from src.infrastructure.exceptions import QueryGenerationError
-from src.open_ai_llm.open_ai_llm import OpenAILLM
+from src.infrastructure.open_ai_llm import OpenAILLM
 from src.services.database_schema_service import DatabaseSchemaService
 
 
