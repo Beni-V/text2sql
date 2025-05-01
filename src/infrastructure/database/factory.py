@@ -1,6 +1,6 @@
 from src.config.app_config import AppConfig
 from src.infrastructure.database.connection import Connection, ConnectionManager
-from src.infrastructure.database.mssql_service import QueryExecutor
+from src.infrastructure.database.query_executor import QueryExecutor
 from src.services.database_service import DatabaseService
 from src.services.schema_service import SchemaService
 

@@ -6,7 +6,7 @@ Implements high-level database operations, following Facade pattern.
 from typing import Any
 
 from src.dataclasses.query_result import QueryResult
-from src.infrastructure.database.mssql_service import QueryExecutor
+from src.infrastructure.database.query_executor import QueryExecutor
 from src.utils.exceptions import QueryError
 
 

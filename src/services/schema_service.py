@@ -1,6 +1,6 @@
 from typing import Any, Protocol
 
-from src.infrastructure.database.mssql_service import QueryExecutor
+from src.infrastructure.database.query_executor import QueryExecutor
 from src.utils.exceptions import SchemaError
 
 
