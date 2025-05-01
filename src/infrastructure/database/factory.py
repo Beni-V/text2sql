@@ -1,6 +1,6 @@
 from src.config.app_config import AppConfig
 from src.infrastructure.database.connection import Connection, ConnectionManager
-from src.infrastructure.database.mssql_service import MSSQLService
+from src.infrastructure.database.mssql_service import QueryExecutor
 from src.services.database_service import DatabaseService
 from src.services.schema_service import SchemaService
 
@@ -15,8 +15,8 @@ class DatabaseFactory:
         return ConnectionManager(connection)
 
     @staticmethod
-    def create_mssql_service(connection_manager: ConnectionManager) -> MSSQLService:
-        return MSSQLService(connection_manager)
+    def create_query_executor(connection_manager: ConnectionManager) -> QueryExecutor:
+        return QueryExecutor(connection_manager)
 
     @staticmethod
     def create_database_service(query_executor) -> DatabaseService:

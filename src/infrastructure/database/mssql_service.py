@@ -8,7 +8,7 @@ from src.infrastructure.database.connection import ConnectionManager
 from src.utils.exceptions import QueryError, SchemaError
 
 
-class MSSQLService:
+class QueryExecutor:
     def __init__(self, connection_manager: ConnectionManager):
         self.connection_manager = connection_manager
 

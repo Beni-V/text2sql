@@ -32,13 +32,16 @@ def create_app():
     config = AppConfig(EnvironmentLoader())
 
     # Configure database components
-    mssql_service = DatabaseFactory.create_mssql_service(
-        DatabaseFactory.create_connection_manager(DatabaseFactory.create_connection(config))
+    database_connection_manager = DatabaseFactory.create_connection_manager(
+        DatabaseFactory.create_connection(config)
+    )
+    database_query_executor = DatabaseFactory.create_query_executor(
+        database_connection_manager
     )
 
     # Create services
-    db_service = DatabaseFactory.create_database_service(mssql_service)
-    schema_service = DatabaseFactory.create_schema_service(mssql_service)
+    db_service = DatabaseFactory.create_database_service(database_query_executor)
+    schema_service = DatabaseFactory.create_schema_service(database_query_executor)
 
     # Configure LLM components
     llm_service = LLMFactory.create_llm_service(config)
