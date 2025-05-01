@@ -1,5 +1,6 @@
 from typing import Dict, Any, Optional
 from .env_loader import EnvironmentLoader
+import os
 
 
 class AppConfig:
@@ -15,8 +16,10 @@ class AppConfig:
                 "SQL_SERVER", "SQL_DATABASE", "SQL_USER", "SQL_PASSWORD"
             )
             self._database_config["trust_server_certificate"] = True
-            self._database_config["driver"] = "ODBC Driver 18 for SQL Server"
-
+            if os.uname().sysname == "Darwin":
+                self._database_config["driver"] = "ODBC Driver 18 for SQL Server"
+            else:
+                self._database_config["driver"] = "FreeTDS"
         return self._database_config
 
     @property
@@ -54,11 +57,19 @@ class AppConfig:
         }
 
     def get_database_connection_string(self) -> str:
+        server = self.database_config['SQL_SERVER']
+        port = os.environ.get('SQL_PORT', '1433')  # Get the port from environment variable
+        database = self.database_config['SQL_DATABASE']
+        user = self.database_config['SQL_USER']
+        password = self.database_config['SQL_PASSWORD']
+        
         return (
             f"DRIVER={{{self.database_config['driver']}}};"
-            f"SERVER={self.database_config['SQL_SERVER']};"
-            f"DATABASE={self.database_config['SQL_DATABASE']};"
-            f"UID={self.database_config['SQL_USER']};"
-            f"PWD={self.database_config['SQL_PASSWORD']};"
+            f"SERVER={server};"
+            f"PORT={port};"
+            f"DATABASE={database};"
+            f"UID={user};"
+            f"PWD={password};"
+            f"TDS_VERSION=7.3;"
             f"TrustServerCertificate={'yes' if self.database_config['trust_server_certificate'] else 'no'}"
         )

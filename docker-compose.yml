@@ -2,15 +2,45 @@ version: '3.8'
 
 services:
   sqlserver:
-    build: .
+    build:
+      context: .
+      dockerfile: Dockerfile.sqlserver
     ports:
       - "1433:1433"
     environment:
       - ACCEPT_EULA=Y
       - MSSQL_PID=Developer
+      - SQL_PASSWORD=${SQL_PASSWORD}
       - SA_PASSWORD=${SQL_PASSWORD}
     healthcheck:
-      test: ["CMD", "/opt/mssql-tools18/bin/sqlcmd", "-U", "sa", "-P", "${SQL_PASSWORD}", "-d", "-Q", "SELECT 1"]
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SQL_PASSWORD}" -Q "SELECT 1" || exit 1
       interval: 10s
       timeout: 5s
       retries: 10
+      start_period: 30s
+    networks:
+      - sql2text-network
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile.app
+    ports:
+      - "8501:8501"
+    environment:
+      - SQL_SERVER=sqlserver
+      - SQL_PORT=1433
+      - SQL_USER=sa
+      - SQL_DATABASE=AdventureWorks2022
+      - SQL_PASSWORD=${SQL_PASSWORD}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - OPENAI_MODEL=gpt-4.1-mini
+      - OPENAI_TEMPERATURE=0
+    depends_on:
+      - sqlserver
+    networks:
+      - sql2text-network
+
+networks:
+  sql2text-network:
+    driver: bridge
