@@ -16,10 +16,6 @@ class SchemaDisplay:
     def render(self):
         with st.sidebar:
             st.header("Database Schema")
-            if st.button("Refresh Schema"):
-                st.cache_data.clear()
-                self.schema_service.clear_cache()
-
             schema_info = self.schema_service.get_detailed_schema_information()
             st.json(schema_info, expanded=False)
 
