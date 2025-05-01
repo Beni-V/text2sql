@@ -39,12 +39,19 @@ class LLMTextToSQLService:
             prompt = self._construct_prompt(
                 self._database_schema_service.retrieve(), natural_language_question
             )
-            return self._open_ai_llm.generate_text(prompt)
+            return (
+                self._open_ai_llm.generate_text(prompt)
+                .replace("```sql", "")
+                .replace("```", "")
+                .strip()
+            )
 
         except Exception as e:
             raise QueryGenerationError(f"Failed to generate SQL: {str(e)}")
 
-    def _construct_prompt(self, database_schema: dict, natural_language_question: str) -> str:
+    def _construct_prompt(
+        self, database_schema: dict, natural_language_question: str
+    ) -> str:
         return self._prompt_template.format(
             database_schema=database_schema, question=natural_language_question
         )

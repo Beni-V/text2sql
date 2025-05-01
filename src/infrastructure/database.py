@@ -11,6 +11,7 @@ from src.utils import Singleton
 
 class Database(metaclass=Singleton):
     """Singleton class for accessing the database."""
+
     def __init__(self):
         self._config = EnvConfig()
 

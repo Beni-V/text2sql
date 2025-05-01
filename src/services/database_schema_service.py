@@ -25,9 +25,7 @@ class DatabaseSchemaService(metaclass=Singleton):
             return schema
 
         except Exception as e:
-            raise SchemaError(
-                f"Failed to retrieve schema information: {str(e)}"
-            )
+            raise SchemaError(f"Failed to retrieve schema information: {str(e)}")
 
     @staticmethod
     def _construct_schema_as_dict(query_result: dict) -> dict:

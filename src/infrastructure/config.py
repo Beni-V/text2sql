@@ -7,6 +7,7 @@ from src.utils import Singleton
 
 class EnvConfig(metaclass=Singleton):
     """Singleton class for accessing environment variables."""
+
     def __init__(self):
         load_dotenv()
 
