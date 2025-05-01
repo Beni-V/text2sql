@@ -5,7 +5,6 @@ Implements Factory Method pattern.
 
 from src.config.app_config import AppConfig
 from src.core.interfaces.database import (
-    DatabaseConnection,
     QueryExecutor,
     SchemaProvider,
 )
@@ -22,7 +21,7 @@ class DatabaseFactory:
     """
 
     @staticmethod
-    def create_connection(config: AppConfig) -> DatabaseConnection:
+    def create_connection(config: AppConfig):
         """
         Create a database connection.
 
@@ -35,7 +34,7 @@ class DatabaseFactory:
         return PyODBCConnection(config)
 
     @staticmethod
-    def create_connection_manager(connection: DatabaseConnection) -> ConnectionManager:
+    def create_connection_manager(connection) -> ConnectionManager:
         """
         Create a connection manager.
 

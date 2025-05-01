@@ -1,44 +1,19 @@
-"""
-Application configuration management.
-Centralizes all configuration in one place following Single Responsibility Principle.
-"""
-
 from typing import Dict, Any, Optional
 from .env_loader import EnvironmentLoader
 
 
 class AppConfig:
-    """
-    Manages application configuration.
-    Acts as a configuration facade for the entire application.
-    """
-
     def __init__(self, env_loader: Optional[EnvironmentLoader] = None):
-        """
-        Initialize application configuration.
-
-        Args:
-            env_loader: Environment loader instance (dependency injection)
-        """
         self.env_loader = env_loader or EnvironmentLoader()
         self._database_config = None
         self._llm_config = None
 
     @property
     def database_config(self) -> Dict[str, Any]:
-        """
-        Get database configuration.
-        Lazy-loaded for better performance.
-
-        Returns:
-            Dictionary with database configuration
-        """
         if self._database_config is None:
-            # Load required database configuration variables
             self._database_config = self.env_loader.get_required_variables(
                 "SQL_SERVER", "SQL_DATABASE", "SQL_USER", "SQL_PASSWORD"
             )
-            # Add additional database configuration settings
             self._database_config["trust_server_certificate"] = True
             self._database_config["driver"] = "ODBC Driver 18 for SQL Server"
 
@@ -46,15 +21,7 @@ class AppConfig:
 
     @property
     def llm_config(self) -> Dict[str, Any]:
-        """
-        Get LLM service configuration.
-        Lazy-loaded for better performance.
-
-        Returns:
-            Dictionary with LLM service configuration
-        """
         if self._llm_config is None:
-            # Load required LLM configuration variables
             self._llm_config = {
                 "api_key": self.env_loader.get_variable(
                     "OPENAI_API_KEY", required=True
@@ -71,12 +38,6 @@ class AppConfig:
 
     @property
     def streamlit_config(self) -> Dict[str, Any]:
-        """
-        Get Streamlit configuration.
-
-        Returns:
-            Dictionary with Streamlit configuration
-        """
         return {
             "page_title": "SQL Query Generator",
             "page_icon": "🔍",
@@ -93,18 +54,11 @@ class AppConfig:
         }
 
     def get_database_connection_string(self) -> str:
-        """
-        Get database connection string.
-
-        Returns:
-            Formatted connection string
-        """
-        db = self.database_config
         return (
-            f"DRIVER={{{db['driver']}}};"
-            f"SERVER={db['SQL_SERVER']};"
-            f"DATABASE={db['SQL_DATABASE']};"
-            f"UID={db['SQL_USER']};"
-            f"PWD={db['SQL_PASSWORD']};"
-            f"TrustServerCertificate={'yes' if db['trust_server_certificate'] else 'no'}"
+            f"DRIVER={{{self.database_config['driver']}}};"
+            f"SERVER={self.database_config['SQL_SERVER']};"
+            f"DATABASE={self.database_config['SQL_DATABASE']};"
+            f"UID={self.database_config['SQL_USER']};"
+            f"PWD={self.database_config['SQL_PASSWORD']};"
+            f"TrustServerCertificate={'yes' if self.database_config['trust_server_certificate'] else 'no'}"
         )

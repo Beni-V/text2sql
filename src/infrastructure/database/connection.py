@@ -8,11 +8,10 @@ from contextlib import contextmanager
 import pyodbc
 
 from src.config.app_config import AppConfig
-from src.core.interfaces.database import DatabaseConnection
 from src.utils.exceptions import ConnectionError
 
 
-class PyODBCConnection(DatabaseConnection):
+class PyODBCConnection:
     """
     PyODBC implementation of DatabaseConnection interface.
     Handles connection to Microsoft SQL Server via ODBC.
@@ -72,7 +71,7 @@ class ConnectionManager:
     Manages database connections using context manager pattern.
     """
 
-    def __init__(self, connection: DatabaseConnection):
+    def __init__(self, connection):
         """
         Initialize with a database connection.
 

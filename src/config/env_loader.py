@@ -1,35 +1,15 @@
-"""
-Environment variable loader with validation.
-"""
-
 import os
 from typing import Dict, Any, Optional
 from dotenv import load_dotenv
 
 
 class EnvironmentLoader:
-    """
-    Handles loading and validating environment variables.
-    Follows the Single Responsibility Principle by only managing environment configuration.
-    """
 
-    def __init__(self, env_file_path: Optional[str] = None):
-        """
-        Initialize the environment loader.
-
-        Args:
-            env_file_path: Optional path to .env file (defaults to .env in current directory)
-        """
-        self.env_file_path = env_file_path
+    def __init__(self):
+        self.env_file_path = None
         self._loaded = False
 
     def load(self) -> bool:
-        """
-        Load environment variables from .env file.
-
-        Returns:
-            bool: True if environment was loaded successfully
-        """
         if self._loaded:
             return True
 
@@ -40,20 +20,6 @@ class EnvironmentLoader:
     def get_variable(
         self, name: str, default: Any = None, required: bool = False
     ) -> Any:
-        """
-        Get an environment variable with validation.
-
-        Args:
-            name: Name of the environment variable
-            default: Default value if variable is not found
-            required: Whether the variable is required
-
-        Returns:
-            The environment variable value or default
-
-        Raises:
-            ValueError: If the variable is required but not found
-        """
         if not self._loaded:
             self.load()
 
@@ -65,18 +31,6 @@ class EnvironmentLoader:
         return value
 
     def get_required_variables(self, *var_names) -> Dict[str, str]:
-        """
-        Get multiple required environment variables.
-
-        Args:
-            *var_names: Names of required environment variables
-
-        Returns:
-            Dict of variable names and values
-
-        Raises:
-            ValueError: If any required variable is missing
-        """
         result = {}
         missing = []
 

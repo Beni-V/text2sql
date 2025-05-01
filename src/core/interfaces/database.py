@@ -7,46 +7,6 @@ from abc import ABC, abstractmethod
 from typing import List, Dict, Any, Optional
 
 
-class DatabaseConnection(ABC):
-    """
-    Abstract interface for database connections.
-    Provides a standard interface for different database implementations.
-    """
-
-    @abstractmethod
-    def connect(self) -> Any:
-        """
-        Establish connection to the database.
-
-        Returns:
-            Connection object
-
-        Raises:
-            ConnectionError: If connection fails
-        """
-        pass
-
-    @abstractmethod
-    def close(self) -> None:
-        """
-        Close the database connection.
-
-        Raises:
-            ConnectionError: If closing fails
-        """
-        pass
-
-    @abstractmethod
-    def is_connected(self) -> bool:
-        """
-        Check if connection is established.
-
-        Returns:
-            True if connected, False otherwise
-        """
-        pass
-
-
 class QueryExecutor(ABC):
     """
     Abstract interface for executing SQL queries.
