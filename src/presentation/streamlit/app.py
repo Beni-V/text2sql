@@ -1,7 +1,8 @@
+from typing import Any
+
 import streamlit as st
 
 from src.config.app_config import AppConfig
-from src.config.env_loader import EnvironmentLoader
 from src.infrastructure.database.factory import DatabaseFactory
 from src.infrastructure.llm.factory import LLMFactory
 from src.presentation.streamlit.components import (
@@ -11,7 +12,7 @@ from src.presentation.streamlit.components import (
 )
 
 
-def configure_page(config: AppConfig):
+def configure_page(config: AppConfig) -> None:
     streamlit_config = config.streamlit_config
 
     # Set page configuration
@@ -27,7 +28,7 @@ def configure_page(config: AppConfig):
     )
 
 
-def create_app():
+def create_app() -> dict[str, Any]:
     # Load configuration
     config = AppConfig()
 
@@ -61,7 +62,7 @@ def create_app():
     }
 
 
-def main():
+def main() -> None:
     # Create and configure the application
     app = create_app()
 

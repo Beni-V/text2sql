@@ -1,10 +1,10 @@
 from dataclasses import dataclass
-from typing import Dict, Any, List, Optional
+from typing import Any
 
 
 @dataclass
 class QueryResult:
-    rows: List[Dict[str, Any]]
-    column_names: List[str]
+    rows: list[dict[str, Any]]
+    column_names: list[str]
     affected_rows: int = 0
-    execution_time: Optional[float] = None
+    execution_time: float | None = None

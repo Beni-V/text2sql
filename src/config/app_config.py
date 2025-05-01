@@ -1,14 +1,14 @@
 import os
-from typing import Dict, Any
+from typing import Any
 
 from .env_loader import EnvironmentLoader
 
 
 class AppConfig:
-    def __init__(self):
+    def __init__(self) -> None:
         self.env_loader = EnvironmentLoader()
-        self._database_config = None
-        self._llm_config = None
+        self._database_config: dict[str, Any] | None = None
+        self._llm_config: dict[str, Any] | None = None
 
     @property
     def database_config(self) -> dict[str, Any]:

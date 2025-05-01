@@ -1,13 +1,13 @@
 import os
-from typing import Dict, Any, Optional
+from typing import Any
 from dotenv import load_dotenv
 
 
 class EnvironmentLoader:
 
-    def __init__(self):
-        self.env_file_path = None
-        self._loaded = False
+    def __init__(self) -> None:
+        self.env_file_path: str | None = None
+        self._loaded: bool = False
 
     def load(self) -> bool:
         if self._loaded:
@@ -30,7 +30,7 @@ class EnvironmentLoader:
 
         return value
 
-    def get_required_variables(self, *var_names) -> Dict[str, str]:
+    def get_required_variables(self, *var_names: str) -> dict[str, str]:
         result = {}
         missing = []
 

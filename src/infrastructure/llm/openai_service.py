@@ -1,13 +1,13 @@
-from typing import Dict, Any, Optional
-import os
+from typing import Any
 
 from openai import OpenAI
+
 from src.config.app_config import AppConfig
 from src.utils.exceptions import LLMServiceError
 
 
 class OpenAIService:
-    def __init__(self, config: AppConfig):
+    def __init__(self, config: AppConfig) -> None:
         self.config = config
         self.llm_config = config.llm_config
 
@@ -21,7 +21,7 @@ class OpenAIService:
             )
 
     def generate_text(
-        self, prompt: str, options: Optional[Dict[str, Any]] = None
+        self, prompt: str, options: dict[str, Any] | None = None
     ) -> str:
         try:
             # Merge options with defaults

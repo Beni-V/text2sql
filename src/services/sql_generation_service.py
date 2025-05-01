@@ -1,16 +1,20 @@
-from typing import Dict, Any
+from typing import Any, Protocol
 
 from src.utils.exceptions import QueryGenerationError
 
 
+class LLMService(Protocol):
+    def generate_text(self, prompt: str, options: dict[str, Any] | None = None) -> str: ...
+
+
 class LLMSQLGenerator:
 
-    def __init__(self, llm_service, prompt_template):
+    def __init__(self, llm_service: LLMService, prompt_template: str) -> None:
         self.llm_service = llm_service
         self.prompt_template = prompt_template
 
     def generate_sql_query(
-        self, natural_language_question: str, schema_info: Dict[str, Any]
+        self, natural_language_question: str, schema_info: dict[str, Any]
     ) -> str:
         try:
             # Format the prompt with schema info and question

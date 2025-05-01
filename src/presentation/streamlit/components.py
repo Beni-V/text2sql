@@ -1,19 +1,18 @@
-import streamlit as st
 import pandas as pd
-from typing import Dict, Any, List, Optional
+import streamlit as st
 
 from src.services.database_service import DatabaseService
 from src.services.schema_service import SchemaService
 from src.services.sql_generation_service import LLMSQLGenerator
-from src.utils.exceptions import QueryError, QueryGenerationError
+from src.utils.exceptions import QueryGenerationError
 
 
 class SchemaDisplay:
 
-    def __init__(self, schema_service: SchemaService):
+    def __init__(self, schema_service: SchemaService) -> None:
         self.schema_service = schema_service
 
-    def render(self):
+    def render(self) -> None:
         with st.sidebar:
             st.header("Database Schema")
             schema_info = self.schema_service.get_detailed_schema_information()
@@ -22,7 +21,7 @@ class SchemaDisplay:
 
 class QueryInput:
 
-    def render(self) -> Optional[str]:
+    def render(self) -> str | None:
         question = st.text_input(
             "Enter your question:",
             placeholder="e.g. Show me all employees in the Sales department",
@@ -44,12 +43,12 @@ class SQLQueryProcessor:
         sql_generator: LLMSQLGenerator,
         db_service: DatabaseService,
         schema_service: SchemaService,
-    ):
+    ) -> None:
         self.sql_generator = sql_generator
         self.db_service = db_service
         self.schema_service = schema_service
 
-    def process_query(self, question: str):
+    def process_query(self, question: str) -> None:
         with st.spinner("Processing..."):
             try:
                 # Get schema information
