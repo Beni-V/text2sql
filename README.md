@@ -136,3 +136,4 @@ This project was developed with assistance from Windsurf AI, which was used duri
 - Build and refine prompt engineering strategies
 - Fix containerization issues
 - Research query refinement approaches
+- Writing the skeleton of the Streamlit UI
