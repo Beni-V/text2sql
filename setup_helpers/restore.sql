@@ -1,8 +1,8 @@
-CREATE DATABASE AdventureWorks2022;
+USE master;
 GO
-RESTORE DATABASE AdventureWorks2022
-FROM DISK = '/var/opt/mssql/backup/AdventureWorks2022.bak'
+RESTORE DATABASE __SQL_DATABASE__
+FROM DISK = '/var/opt/mssql/backup/database.bak'
 WITH REPLACE,
-MOVE 'AdventureWorks2022' TO '/var/opt/mssql/data/AdventureWorks2022.mdf',
-MOVE 'AdventureWorks2022_log' TO '/var/opt/mssql/data/AdventureWorks2022.ldf';
+MOVE '__DATA_FILE_NAME__' TO '/var/opt/mssql/data/__SQL_DATABASE__.mdf',
+MOVE '__LOG_FILE_NAME__' TO '/var/opt/mssql/data/__SQL_DATABASE__.ldf';
 GO
