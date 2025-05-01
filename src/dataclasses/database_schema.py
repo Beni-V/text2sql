@@ -4,6 +4,7 @@ from typing import Any
 
 @dataclass
 class Column:
+    """Represents a column in a database table."""
     name: str
     data_type: str
     character_maximum_length: int | None = None
@@ -21,6 +22,7 @@ class Column:
 
 @dataclass
 class Table:
+    """Represents a database table."""
 
     name: str
     schema: str
@@ -36,6 +38,7 @@ class Table:
 
 
 class DatabaseSchema:
+    """Represents a database schema. Contains a collection of tables."""
 
     def __init__(self) -> None:
         self.tables: dict[str, Table] = {}

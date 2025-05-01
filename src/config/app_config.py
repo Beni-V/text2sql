@@ -5,6 +5,7 @@ from .env_loader import EnvironmentLoader
 
 
 class AppConfig:
+    """Application configuration class. Used to store and access configuration values."""
     def __init__(self) -> None:
         self.env_loader = EnvironmentLoader()
         self._database_config: dict[str, Any] | None = None

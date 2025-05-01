@@ -9,6 +9,7 @@ from src.utils.exceptions import QueryError, SchemaError
 
 
 class QueryExecutor:
+    """A facade for executing SQL queries and retrieving results."""
     def __init__(self, connection_manager: ConnectionManager):
         self.connection_manager = connection_manager
 
@@ -65,55 +66,6 @@ class QueryExecutor:
         except Exception as e:
             raise QueryError(f"Query execution failed: {str(e)}", original_error=e)
 
-    def execute_non_query(
-        self, query: str, parameters: Optional[Dict[str, Any]] = None
-    ) -> int:
-        try:
-            with self.connection_manager.get_cursor() as cursor:
-                if parameters:
-                    cursor.execute(query, parameters)
-                else:
-                    cursor.execute(query)
-
-                # Commit changes if not in a transaction
-                if not cursor.connection.autocommit:
-                    cursor.connection.commit()
-
-                return cursor.rowcount
-
-        except Exception as e:
-            raise QueryError(f"Non-query execution failed: {str(e)}", original_error=e)
-
-    def get_schema_information(self) -> Dict[str, List[Dict[str, Any]]]:
-        query = """
-        SELECT *
-        FROM INFORMATION_SCHEMA.COLUMNS
-        ORDER BY TABLE_NAME, ORDINAL_POSITION;
-        """
-
-        try:
-            schema_info: Dict[str, List[Dict[str, Any]]] = {}
-
-            with self.connection_manager.get_cursor() as cursor:
-                cursor.execute(query)
-                columns = [desc[0] for desc in cursor.description]
-
-                for row in cursor.fetchall():
-                    row_dict = dict(zip(columns, row))
-                    table = row_dict["TABLE_NAME"]
-
-                    if table not in schema_info:
-                        schema_info[table] = []
-
-                    schema_info[table].append(row_dict)
-
-            return schema_info
-
-        except Exception as e:
-            raise SchemaError(
-                f"Failed to retrieve schema information: {str(e)}", original_error=e
-            )
-
     def get_detailed_schema_information(self) -> Dict[str, Any]:
         query = """
         SELECT 
@@ -149,15 +101,13 @@ class QueryExecutor:
                             Table(name=table_name, schema=schema_name, columns={})
                         )
 
-                    table = schema.get_table(table_name)
-                    if table:
-                        table.columns[column_name] = Column(
-                            name=column_name,
-                            data_type=data_type,
-                            character_maximum_length=char_max_len,
-                            is_nullable=is_nullable,
-                            column_default=column_default,
-                        )
+                    schema.get_table(table_name).columns[column_name] = Column(
+                        name=column_name,
+                        data_type=data_type,
+                        character_maximum_length=char_max_len,
+                        is_nullable=is_nullable,
+                        column_default=column_default,
+                    )
 
             return schema.to_dict()
 

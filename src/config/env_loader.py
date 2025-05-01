@@ -4,18 +4,16 @@ from dotenv import load_dotenv
 
 
 class EnvironmentLoader:
+    """Loads environment variables from a .env file. Includes helper methods to retrieve."""
 
     def __init__(self) -> None:
-        self.env_file_path: str | None = None
         self._loaded: bool = False
 
-    def load(self) -> bool:
+    def load(self) -> None:
         if self._loaded:
-            return True
-
-        result = load_dotenv(dotenv_path=self.env_file_path)
-        self._loaded = result
-        return result
+            return
+        load_dotenv()
+        self._loaded = True
 
     def get_variable(
         self, name: str, default: Any = None, required: bool = False

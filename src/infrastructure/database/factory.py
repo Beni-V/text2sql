@@ -6,6 +6,7 @@ from src.services.schema_service import SchemaService
 
 
 class DatabaseFactory:
+    """A helper class for creating database related objects."""
     @staticmethod
     def create_connection(config: AppConfig):
         return Connection(config)

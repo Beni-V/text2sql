@@ -28,8 +28,3 @@ class DatabaseService:
         self, sql_query: str, parameters: dict[str, Any] | None = None
     ) -> QueryResult:
         return self.query_executor.execute_query(sql_query, parameters)
-
-    def execute_non_query(
-        self, sql_query: str, parameters: dict[str, Any] | None = None
-    ) -> int:
-        return self.query_executor.execute_non_query(sql_query, parameters)
