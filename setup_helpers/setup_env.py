@@ -10,7 +10,7 @@ import sys
 
 
 def generate_env_file():
-    # Define the default values for all environment variables except OPENAI_API_KEY
+    # Define the default values for all environment variables except OPENAI_API_KEY and BAK_FILE_PATH
     env_defaults = {
         "SQL_SERVER": "localhost",
         "SQL_DATABASE": "AdventureWorks2022",
