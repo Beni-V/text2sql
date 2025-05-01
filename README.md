@@ -91,13 +91,13 @@ The application implements a layered architecture where higher-level layers depe
 6. **Error Handling**: If execution fails, query is refined and retried (up to 3 times)
 7. **Result Display**: Query and results are displayed to the user
 
-## Assumptions
+## Tradeoffs
 
 - Only OpenAI API is used for language model integration
 - Only Microsoft SQL Server backup (.bak) files are supported
 - No RAG (Retrieval Augmented Generation) pipeline was implemented
 - No vector search or embeddings were used for schema understanding
-- Database schema is relatively stable and can be cached
+- Database schema is supposed to be relatively stable and can be cached
 - Query refinement within 3 attempts is sufficient for most errors
 
 ## How to Run
