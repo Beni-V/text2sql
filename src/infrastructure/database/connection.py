@@ -6,8 +6,7 @@ from src.config.app_config import AppConfig
 from src.utils.exceptions import ConnectionError
 
 
-class PyODBCConnection:
-
+class Connection:
     def __init__(self, config: AppConfig):
         self.config = config
         self.connection = None

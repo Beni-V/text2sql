@@ -1,5 +1,5 @@
 from src.config.app_config import AppConfig
-from src.infrastructure.database.connection import PyODBCConnection, ConnectionManager
+from src.infrastructure.database.connection import Connection, ConnectionManager
 from src.infrastructure.database.mssql_service import MSSQLService
 from src.services.database_service import DatabaseService
 from src.services.schema_service import SchemaService
@@ -8,7 +8,7 @@ from src.services.schema_service import SchemaService
 class DatabaseFactory:
     @staticmethod
     def create_connection(config: AppConfig):
-        return PyODBCConnection(config)
+        return Connection(config)
 
     @staticmethod
     def create_connection_manager(connection) -> ConnectionManager:

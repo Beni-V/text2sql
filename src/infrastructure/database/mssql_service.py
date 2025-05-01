@@ -115,15 +115,6 @@ class MSSQLService:
             )
 
     def get_detailed_schema_information(self) -> Dict[str, Any]:
-        """
-        Retrieve detailed schema information in a structured format.
-
-        Returns:
-            Dictionary with detailed schema information
-
-        Raises:
-            SchemaError: If schema retrieval fails
-        """
         query = """
         SELECT 
             TABLE_SCHEMA, 

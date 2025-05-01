@@ -29,13 +29,12 @@ def configure_page(config: AppConfig):
 
 def create_app():
     # Load configuration
-    env_loader = EnvironmentLoader()
-    config = AppConfig(env_loader)
+    config = AppConfig(EnvironmentLoader())
 
     # Configure database components
-    db_connection = DatabaseFactory.create_connection(config)
-    connection_manager = DatabaseFactory.create_connection_manager(db_connection)
-    mssql_service = DatabaseFactory.create_mssql_service(connection_manager)
+    mssql_service = DatabaseFactory.create_mssql_service(
+        DatabaseFactory.create_connection_manager(DatabaseFactory.create_connection(config))
+    )
 
     # Create services
     db_service = DatabaseFactory.create_database_service(mssql_service)
