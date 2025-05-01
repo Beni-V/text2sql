@@ -7,8 +7,8 @@ ENV ACCEPT_EULA=Y \
     SA_PASSWORD=${SQL_PASSWORD}
 
 # Copy initialization scripts and backup file
-COPY init.sh /usr/src/app/init.sh
-COPY restore.sql /usr/src/app/restore.sql
+COPY setup_helpers/init.sh /usr/src/app/init.sh
+COPY setup_helpers/restore.sql /usr/src/app/restore.sql
 COPY AdventureWorks2022.bak /var/opt/mssql/backup/AdventureWorks2022.bak
 
 # Switch to root to change permissions
