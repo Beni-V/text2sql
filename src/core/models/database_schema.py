@@ -11,7 +11,6 @@ class Column:
     column_default: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation"""
         return {
             "data_type": self.data_type,
             "character_maximum_length": self.character_maximum_length,
@@ -42,19 +41,15 @@ class DatabaseSchema:
         self.tables: Dict[str, Table] = {}
 
     def add_table(self, table: Table) -> None:
-        """Add a table to the schema"""
         self.tables[table.name] = table
 
     def get_table(self, table_name: str) -> Optional[Table]:
-        """Get a table by name"""
         return self.tables.get(table_name)
 
     def table_exists(self, table_name: str) -> bool:
-        """Check if a table exists"""
         return table_name in self.tables
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation"""
         return {
             table_name: table.to_dict() for table_name, table in self.tables.items()
         }
