@@ -61,7 +61,7 @@ class AppConfig:
         server = self.database_config["SQL_SERVER"]
         port = os.environ.get(
             "SQL_PORT", "1433"
-        )  # Get the port from environment variable
+        )
         database = self.database_config["SQL_DATABASE"]
         user = self.database_config["SQL_USER"]
         password = self.database_config["SQL_PASSWORD"]
