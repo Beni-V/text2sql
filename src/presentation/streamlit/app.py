@@ -29,7 +29,7 @@ def configure_page(config: AppConfig):
 
 def create_app():
     # Load configuration
-    config = AppConfig(EnvironmentLoader())
+    config = AppConfig()
 
     # Configure database components
     database_connection_manager = DatabaseFactory.create_connection_manager(

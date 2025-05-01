@@ -1,16 +1,17 @@
-from typing import Dict, Any, Optional
-from .env_loader import EnvironmentLoader
 import os
+from typing import Dict, Any
+
+from .env_loader import EnvironmentLoader
 
 
 class AppConfig:
-    def __init__(self, env_loader: Optional[EnvironmentLoader] = None):
-        self.env_loader = env_loader or EnvironmentLoader()
+    def __init__(self):
+        self.env_loader = EnvironmentLoader()
         self._database_config = None
         self._llm_config = None
 
     @property
-    def database_config(self) -> Dict[str, Any]:
+    def database_config(self) -> dict[str, Any]:
         if self._database_config is None:
             self._database_config = self.env_loader.get_required_variables(
                 "SQL_SERVER", "SQL_DATABASE", "SQL_USER", "SQL_PASSWORD"
@@ -23,7 +24,7 @@ class AppConfig:
         return self._database_config
 
     @property
-    def llm_config(self) -> Dict[str, Any]:
+    def llm_config(self) -> dict[str, Any]:
         if self._llm_config is None:
             self._llm_config = {
                 "api_key": self.env_loader.get_variable(
@@ -40,7 +41,7 @@ class AppConfig:
         return self._llm_config
 
     @property
-    def streamlit_config(self) -> Dict[str, Any]:
+    def streamlit_config(self) -> dict[str, Any]:
         return {
             "page_title": "SQL Query Generator",
             "page_icon": "🔍",
