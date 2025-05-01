@@ -4,9 +4,6 @@ Implements Factory Method pattern.
 """
 
 from src.config.app_config import AppConfig
-from src.core.interfaces.database import (
-    SchemaProvider,
-)
 from src.infrastructure.database.connection import PyODBCConnection, ConnectionManager
 from src.infrastructure.database.mssql_service import MSSQLService
 from src.services.database_service import DatabaseService
@@ -72,7 +69,7 @@ class DatabaseFactory:
         return DatabaseService(query_executor)
 
     @staticmethod
-    def create_schema_service(schema_provider: SchemaProvider) -> SchemaService:
+    def create_schema_service(schema_provider) -> SchemaService:
         """
         Create a schema service.
 

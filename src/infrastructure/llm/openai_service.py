@@ -7,12 +7,11 @@ from typing import Dict, Any, Optional
 import os
 
 from openai import OpenAI
-from src.core.interfaces.llm import LLMService
 from src.config.app_config import AppConfig
 from src.utils.exceptions import LLMServiceError
 
 
-class OpenAIService(LLMService):
+class OpenAIService:
     """
     OpenAI implementation of the LLMService interface.
     Uses OpenAI's API for language model interactions.

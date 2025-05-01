@@ -5,10 +5,8 @@ Implements the PromptTemplate interface, following SRP.
 
 import json
 
-from src.core.interfaces.llm import PromptTemplate
 
-
-class SQLGenerationPrompt(PromptTemplate):
+class SQLGenerationPrompt:
     """
     Prompt template for SQL generation.
     """
@@ -54,42 +52,6 @@ class SQLGenerationPrompt(PromptTemplate):
         if "schema_json" in kwargs and not isinstance(kwargs["schema_json"], str):
             kwargs["schema_json"] = json.dumps(kwargs["schema_json"], indent=2)
 
-        return self._template.format(**kwargs)
-
-    def get_raw_template(self) -> str:
-        """
-        Get the raw template string.
-
-        Returns:
-            Raw template string
-        """
-        return self._template
-
-
-class CustomPromptTemplate(PromptTemplate):
-    """
-    Generic customizable prompt template.
-    """
-
-    def __init__(self, template: str):
-        """
-        Initialize with template string.
-
-        Args:
-            template: Prompt template string
-        """
-        self._template = template
-
-    def format(self, **kwargs) -> str:
-        """
-        Format the prompt template with variable values.
-
-        Args:
-            **kwargs: Variables to inject into template
-
-        Returns:
-            Formatted prompt string
-        """
         return self._template.format(**kwargs)
 
     def get_raw_template(self) -> str:

@@ -1,22 +1,13 @@
-"""
-Data models for database schema representation.
-Following Single Responsibility Principle by focusing solely on schema structure.
-"""
-
-from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
+from typing import Dict, Any, Optional
 
 
 @dataclass
 class Column:
-    """
-    Represents a database column with its properties.
-    """
-
     name: str
     data_type: str
     character_maximum_length: Optional[int] = None
-    is_nullable: str = "YES"  # "YES" or "NO"
+    is_nullable: str = "YES"
     column_default: Optional[str] = None
 
     def to_dict(self) -> Dict[str, Any]:
@@ -31,16 +22,12 @@ class Column:
 
 @dataclass
 class Table:
-    """
-    Represents a database table with its schema and columns.
-    """
 
     name: str
     schema: str
     columns: Dict[str, Column]
 
     def to_dict(self) -> Dict[str, Any]:
-        """Convert to dictionary representation"""
         return {
             "schema": self.schema,
             "columns": {
@@ -50,9 +37,6 @@ class Table:
 
 
 class DatabaseSchema:
-    """
-    Represents the complete database schema.
-    """
 
     def __init__(self):
         self.tables: Dict[str, Table] = {}

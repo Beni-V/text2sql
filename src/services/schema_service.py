@@ -5,7 +5,6 @@ Implements high-level schema operations, following Facade pattern.
 
 from typing import Dict, Any
 
-from src.core.interfaces.database import SchemaProvider
 from src.utils.exceptions import SchemaError
 
 
@@ -15,7 +14,7 @@ class SchemaService:
     Implements Facade pattern to simplify schema retrievals.
     """
 
-    def __init__(self, schema_provider: SchemaProvider):
+    def __init__(self, schema_provider):
         """
         Initialize with schema provider.
 

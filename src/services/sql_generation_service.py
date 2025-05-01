@@ -5,18 +5,16 @@ Implements the high-level service for SQL query generation.
 
 from typing import Dict, Any
 
-from src.core.interfaces.llm import LLMService, PromptTemplate
-from src.core.interfaces.query_generator import SQLQueryGenerator
 from src.utils.exceptions import QueryGenerationError
 
 
-class LLMSQLGenerator(SQLQueryGenerator):
+class LLMSQLGenerator:
     """
     Implementation of SQLQueryGenerator using a language model.
     Uses Strategy pattern for different LLM services.
     """
 
-    def __init__(self, llm_service: LLMService, prompt_template: PromptTemplate):
+    def __init__(self, llm_service, prompt_template):
         """
         Initialize with LLM service and prompt template.
 
