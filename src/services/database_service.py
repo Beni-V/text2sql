@@ -4,8 +4,7 @@ Implements high-level database operations, following Facade pattern.
 """
 
 from typing import List, Dict, Any, Optional
-
-from src.core.models.query_result import QueryResult
+from src.dataclasses.query_result import QueryResult
 from src.utils.exceptions import QueryError
 
 

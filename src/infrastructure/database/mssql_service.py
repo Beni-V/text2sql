@@ -2,8 +2,8 @@ import json
 import time
 from typing import List, Dict, Any, Optional
 
-from src.core.models.database_schema import DatabaseSchema, Table, Column
-from src.core.models.query_result import QueryResult
+from src.dataclasses.database_schema import Column, DatabaseSchema, Table
+from src.dataclasses.query_result import QueryResult
 from src.infrastructure.database.connection import ConnectionManager
 from src.utils.exceptions import QueryError, SchemaError
 
