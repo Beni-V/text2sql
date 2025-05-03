@@ -8,9 +8,9 @@ class DatabaseSchemaService(metaclass=Singleton):
     """Service for retrieving and managing database schema information."""
 
     def __init__(self):
-        self.database = Database()
+        self._database = Database()
         self._cached_schema = None
-        self.config = EnvConfig()
+        self._config = EnvConfig()
         self._schema_retrieval_query_result = None
 
     def retrieve(self, use_cache: bool = True) -> dict:
@@ -19,7 +19,7 @@ class DatabaseSchemaService(metaclass=Singleton):
             if use_cache and self._cached_schema is not None:
                 return self._cached_schema
 
-            query_result = self.database.execute_query(self._schema_retrieval_query)
+            query_result = self._database.execute_query(self._schema_retrieval_query)
             schema = self._construct_schema_as_dict(query_result)
             self._cached_schema = schema
             return schema
