@@ -15,15 +15,23 @@ class LLMTextToSQLService:
                                 Database schema (JSON format):
                                 {database_schema}
                                 
+                                Pay special attention to the "relationships" section for each table. It contains:
+                                - "foreign_keys": Foreign keys in this table that reference other tables
+                                - "referenced_by": Other tables that have foreign keys referencing this table
+                                
+                                Use these relationships to determine the correct JOIN conditions between tables.
+                                
                                 Rules:
                                 1. Return ONLY the raw SQL query
                                 2. Don't include any explanations or markdown formatting
                                 3. Use proper JOINs and WHERE clauses as needed
                                 4. Include all relevant columns
                                 5. Pay careful attention to the database schema
-                                6. the db schema format are table names as keys, which values are its 
-                                    schema name and columns, columns value will be another dict with the column data.
-
+                                6. The db schema format has table names as keys, which values include:
+                                   - "table_schema_name": The schema the table belongs to
+                                   - "columns": Column definitions
+                                   - "relationships": Foreign key relationships with other tables
+                                
                                 Question: "{question}"
                             """
                             
@@ -43,7 +51,13 @@ class LLMTextToSQLService:
                                 {error_message}
                                 ```
                                 
-                                Please fix the SQL query to address this error. 
+                                Please fix the SQL query to address this error.
+                                Pay special attention to the "relationships" section for each table in the schema. It contains:
+                                - "foreign_keys": Foreign keys in this table that reference other tables
+                                - "referenced_by": Other tables that have foreign keys referencing this table
+                                
+                                Use these relationships to determine the correct JOIN conditions between tables.
+                                
                                 Only return the corrected SQL query with no explanations or markdown.
                                 
                                 Database schema (JSON format):
