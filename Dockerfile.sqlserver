@@ -17,6 +17,8 @@ RUN mkdir -p /var/opt/mssql/backup
 USER root
 
 # Grant permissions for the init script to be executable
+RUN apt-get update && apt-get install -y dos2unix
+RUN dos2unix /usr/src/app/init.sh
 RUN chmod +x /usr/src/app/init.sh
 
 # Switch back to the default user
