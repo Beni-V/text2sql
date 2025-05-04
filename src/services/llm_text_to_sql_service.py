@@ -3,6 +3,7 @@ from src.infrastructure.database import Database
 from src.infrastructure.exceptions import QueryGenerationError, QueryError
 from src.infrastructure.open_ai_llm import OpenAILLM
 from src.services.database_schema_service import DatabaseSchemaService
+from src.services.schema_retrieval_service import SchemaRetrievalService
 
 
 class LLMTextToSQLService:
@@ -12,7 +13,7 @@ class LLMTextToSQLService:
                                 You are an expert SQL assistant for Microsoft SQL Server.
                                 Given a natural language question, generate an accurate SQL query.
                                 
-                                Database schema (JSON format):
+                                Below is the relevant part of the database schema (JSON format) for your reference:
                                 {database_schema}
                                 
                                 Pay special attention to the "relationships" section for each table. It contains:
@@ -60,7 +61,7 @@ class LLMTextToSQLService:
                                 
                                 Only return the corrected SQL query with no explanations or markdown.
                                 
-                                Database schema (JSON format):
+                                Below is the relevant part of the database schema (JSON format) for your reference:
                                 {database_schema}
                             """
 
@@ -68,6 +69,7 @@ class LLMTextToSQLService:
         self._open_ai_llm = OpenAILLM()
         self._database = Database()
         self._database_schema_service = DatabaseSchemaService()
+        self._schema_retrieval_service = SchemaRetrievalService()
         self._config = EnvConfig()
         self._prompt_template = prompt_template or self._DEFAULT_PROMPT_TEMPLATE
         self._max_refinement_attempts = 3
@@ -117,9 +119,16 @@ class LLMTextToSQLService:
 
     def generate_sql(self, natural_language_question: str) -> str:
         try:
-            prompt = self._construct_prompt(
-                self._database_schema_service.retrieve(), natural_language_question
+            # Retrieve relevant schema using RAG
+            relevant_schema = self._schema_retrieval_service.retrieve_relevant_schema(
+                natural_language_question
             )
+            
+            # Construct prompt with only relevant schema
+            prompt = self._construct_prompt(
+                relevant_schema, natural_language_question
+            )
+            
             return (
                 self._open_ai_llm.generate_text(prompt)
                 .replace("```sql", "")
@@ -133,8 +142,14 @@ class LLMTextToSQLService:
     def _refine_sql(self, question: str, original_query: str, error_message: str) -> str:
         """Refine an SQL query using LLM based on execution error feedback."""
         try:
+            # For refinement, retrieve schema that might be more relevant based on the error
+            combined_query = f"{question} {error_message} {original_query}"
+            relevant_schema = self._schema_retrieval_service.retrieve_relevant_schema(
+                combined_query, top_k=15  # Increase top_k for refinement
+            )
+            
             prompt = self._construct_refine_prompt(
-                self._database_schema_service.retrieve(), 
+                relevant_schema, 
                 question,
                 original_query,
                 error_message

@@ -46,10 +46,9 @@ class DatabaseSchemaService(metaclass=Singleton):
             char_max_len = row["CHARACTER_MAXIMUM_LENGTH"]
             is_nullable = row["IS_NULLABLE"]
             column_default = row["COLUMN_DEFAULT"]
-
-            if table_name not in schema:
-                schema[table_name] = {
-                    "table_schema_name": table_schema_name,
+            full_table_name = f"{table_schema_name}.{table_name}"
+            if full_table_name not in schema:
+                schema[full_table_name] = {
                     "columns": {},
                     "relationships": {
                         "foreign_keys": [],
@@ -57,7 +56,7 @@ class DatabaseSchemaService(metaclass=Singleton):
                     }
                 }
 
-            schema[table_name]["columns"][column_name] = {
+            schema[full_table_name]["columns"][column_name] = {
                 "data_type": data_type,
                 "character_maximum_length": char_max_len,
                 "is_nullable": is_nullable,
@@ -75,8 +74,7 @@ class DatabaseSchemaService(metaclass=Singleton):
             fk_column_name = row["FK_COLUMN_NAME"]
             pk_column_name = row["PK_COLUMN_NAME"]
             constraint_name = row["CONSTRAINT_NAME"]
-            
-            # Skip if tables are not in our schema (could happen with system tables)
+
             if fk_table_name not in schema or pk_table_name not in schema:
                 continue
                 
