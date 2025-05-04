@@ -28,7 +28,6 @@ class Database(metaclass=Singleton):
             f"TrustServerCertificate=yes;"
         )
 
-
     def execute_query(self, query: str) -> dict:
         """Execute a SQL query and return the results."""
         try:
@@ -42,7 +41,9 @@ class Database(metaclass=Singleton):
                     rows = []
 
                     query_result = cursor.fetchall()
-                    result = Database._query_result_to_dict(columns, cursor, query_result, rows, start_time)
+                    result = Database._query_result_to_dict(
+                        columns, cursor, query_result, rows, start_time
+                    )
 
                     if not conn.autocommit:
                         conn.commit()

@@ -1,3 +1,5 @@
+from typing import Any
+
 import pandas as pd
 import streamlit as st
 
@@ -24,19 +26,30 @@ class SidebarSchemaDisplay:
 
 class QueryInput:
     @staticmethod
-    def render() -> None | str:
+    def render() -> tuple[None | str, bool | None]:
         question = st.text_input(
             "Enter your question:",
             placeholder="e.g. Show me all employees in the Sales department",
         )
 
+        generation_mode = st.radio(
+            "Generation Mode:",
+            options=["RAG (Retrieval-Augmented Generation)", "Regular (Full Schema)"],
+            index=0,
+            help="RAG uses only relevant parts of the schema. Regular uses the entire schema.",
+        )
+
+        use_rag = (
+            True if generation_mode == "RAG (Retrieval-Augmented Generation)" else False
+        )
+
         if st.button("Generate and Execute SQL"):
             if question:
-                return question
+                return question, use_rag
             else:
                 st.warning("Please enter a question first")
 
-        return None
+        return None, None
 
 
 class SQLQueryProcessor:
@@ -45,20 +58,29 @@ class SQLQueryProcessor:
     def __init__(self):
         self._llm_service = LLMTextToSQLService()
 
-    def process_query(self, question: str):
+    def process_query(self, question: str, use_rag: bool) -> None:
         with st.spinner("Processing..."):
             try:
-                # Use the new generate_and_execute_sql method that handles refinement
+                # Set the generation mode
+                self._llm_service.set_generation_mode(use_rag)
+
+                # Display the selected mode
+                mode_display = "RAG" if use_rag else "Regular"
+                st.info(f"Using {mode_display} generation mode")
+
+                # Use the generate_and_execute_sql method that handles refinement
                 result = self._llm_service.generate_and_execute_sql(question)
-                
+
                 # Display the SQL query
                 st.success("Generated SQL Query")
                 st.code(result["query"], language="sql")
-                
+
                 # Display refinement information if the query was refined
                 if result["refined"]:
                     with st.expander("Query was refined due to errors", expanded=True):
-                        st.warning(f"Original query had errors and was refined {result['refinement_attempts']} time(s)")
+                        st.warning(
+                            f"Original query had errors and was refined {result['refinement_attempts']} time(s)"
+                        )
                         st.markdown("##### Original Query")
                         st.code(result["original_query"], language="sql")
                         st.markdown("##### Error Message")
@@ -66,17 +88,17 @@ class SQLQueryProcessor:
 
                 # Display the query results
                 self._display_results(result["result"])
-                
+
             except Exception as e:
                 st.error(f"Error: {str(e)}")
 
     def _display_results(self, result):
         st.success("Query Results")
-        
+
         if result.get("rows"):
             df = pd.DataFrame(result.get("rows", []))
             st.dataframe(df)
-            
+
             # Display query statistics
             st.info(f"Execution time: {result.get('execution_time', 0):.3f} seconds")
         else:
@@ -137,7 +159,7 @@ class UI:
         UI._configure_page()
 
         self._sidebar_schema_display.render()
-        question = self._query_input.render()
+        question, use_rag = self._query_input.render()
 
         if question:
-            self._query_processor.process_query(question)
+            self._query_processor.process_query(question, use_rag)

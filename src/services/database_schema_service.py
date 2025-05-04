@@ -20,13 +20,19 @@ class DatabaseSchemaService(metaclass=Singleton):
                 return self._cached_schema
 
             # Get table and column information
-            columns_query_result = self._database.execute_query(self._schema_retrieval_query)
+            columns_query_result = self._database.execute_query(
+                self._schema_retrieval_query
+            )
             schema = self._construct_schema_as_dict(columns_query_result)
-            
+
             # Get relationship information
-            relationships_query_result = self._database.execute_query(self._relationships_retrieval_query)
-            schema = self._add_relationships_to_schema(schema, relationships_query_result)
-            
+            relationships_query_result = self._database.execute_query(
+                self._relationships_retrieval_query
+            )
+            schema = self._add_relationships_to_schema(
+                schema, relationships_query_result
+            )
+
             self._cached_schema = schema
             return schema
 
@@ -50,10 +56,7 @@ class DatabaseSchemaService(metaclass=Singleton):
             if full_table_name not in schema:
                 schema[full_table_name] = {
                     "columns": {},
-                    "relationships": {
-                        "foreign_keys": [],
-                        "referenced_by": []
-                    }
+                    "relationships": {"foreign_keys": [], "referenced_by": []},
                 }
 
             schema[full_table_name]["columns"][column_name] = {
@@ -64,7 +67,7 @@ class DatabaseSchemaService(metaclass=Singleton):
             }
 
         return schema
-    
+
     @staticmethod
     def _add_relationships_to_schema(schema: dict, relationships_result: dict) -> dict:
         """Add relationship information to the schema."""
@@ -77,25 +80,29 @@ class DatabaseSchemaService(metaclass=Singleton):
 
             if fk_table_name not in schema or pk_table_name not in schema:
                 continue
-                
+
             # Add foreign key information to the table that contains the foreign key
             foreign_key_info = {
                 "constraint_name": constraint_name,
                 "column": fk_column_name,
                 "references_table": pk_table_name,
-                "references_column": pk_column_name
+                "references_column": pk_column_name,
             }
-            schema[fk_table_name]["relationships"]["foreign_keys"].append(foreign_key_info)
-            
+            schema[fk_table_name]["relationships"]["foreign_keys"].append(
+                foreign_key_info
+            )
+
             # Add reverse relationship information to the referenced table
             referenced_by_info = {
                 "constraint_name": constraint_name,
                 "table": fk_table_name,
                 "column": fk_column_name,
-                "referenced_column": pk_column_name
+                "referenced_column": pk_column_name,
             }
-            schema[pk_table_name]["relationships"]["referenced_by"].append(referenced_by_info)
-            
+            schema[pk_table_name]["relationships"]["referenced_by"].append(
+                referenced_by_info
+            )
+
         return schema
 
     @property
@@ -112,7 +119,7 @@ class DatabaseSchemaService(metaclass=Singleton):
                FROM INFORMATION_SCHEMA.COLUMNS
                ORDER BY TABLE_SCHEMA, TABLE_NAME, ORDINAL_POSITION; \
                """
-               
+
     @property
     def _relationships_retrieval_query(self) -> str:
         """SQL query to retrieve relationship information between tables."""
