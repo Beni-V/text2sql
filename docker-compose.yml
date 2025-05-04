@@ -5,6 +5,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.sqlserver
+    platform: linux/amd64
     ports:
       - "1433:1433"
     environment:
@@ -15,7 +16,10 @@ services:
       - SQL_DATABASE=${SQL_DATABASE}
       - BAK_FILE_PATH=/var/opt/mssql/backup/database.bak
     volumes:
-      - ${BAK_FILE_PATH}:/var/opt/mssql/backup/database.bak
+      - type: bind
+        source: ${BAK_FILE_PATH_WINDOWS:-${BAK_FILE_PATH}}
+        target: /var/opt/mssql/backup/database.bak
+        read_only: true
     healthcheck:
       test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "${SQL_PASSWORD}" -Q "SELECT 1" || exit 1
       interval: 10s
@@ -29,6 +33,7 @@ services:
     build:
       context: .
       dockerfile: Dockerfile.app
+    platform: linux/amd64
     ports:
       - "8501:8501"
     environment:
