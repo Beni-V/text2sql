@@ -6,66 +6,66 @@ from src.services.database_schema_service import DatabaseSchemaService
 from src.services.schema_excerption_service import SchemaExcerptionService
 import json
 
+_DEFAULT_PROMPT_TEMPLATE = """
+You are an expert SQL assistant for Microsoft SQL Server.
+Given a natural language question, generate an accurate SQL query.
+
+Below is the relevant part of the database schema (JSON format) for your reference:
+{database_schema}
+
+Pay special attention to the "relationships" section for each table. It contains:
+- "foreign_keys": Foreign keys in this table that reference other tables
+- "referenced_by": Other tables that have foreign keys referencing this table
+
+Use these relationships to determine the correct JOIN conditions between tables.
+
+Rules:
+1. Return ONLY the raw SQL query
+2. Don't include any explanations or markdown formatting
+3. Use proper JOINs and WHERE clauses as needed
+4. Include all relevant columns
+5. Pay careful attention to the database schema
+6. The db schema format has table names as keys (format: schema_name.table_name),
+ which values include:
+   - "columns": Column definitions
+   - "relationships": Foreign key relationships with other tables
+7. Only SELECT queries are allowed
+
+Question: "{question}"
+"""
+
+_REFINE_PROMPT_TEMPLATE = """
+You are an expert SQL assistant for Microsoft SQL Server.
+I previously asked you to generate a SQL query for the following question:
+
+Question: "{question}"
+
+You generated this SQL query:
+```sql
+{original_query}
+```
+
+But when executing it, the following error occurred:
+```
+{error_message}
+```
+
+Please fix the SQL query to address this error.
+Pay special attention to the "relationships" section for each table in the schema. It contains:
+- "foreign_keys": Foreign keys in this table that reference other tables
+- "referenced_by": Other tables that have foreign keys referencing this table
+
+Use these relationships to determine the correct JOIN conditions between tables.
+
+Only return the corrected SQL query with no explanations or markdown.
+
+Below is the relevant part of the database schema (JSON format) for your reference:
+{database_schema}
+"""
 
 class LLMTextToSQLService:
     """Service for generating SQL queries from natural language questions using OpenAI LLM."""
 
-    _DEFAULT_PROMPT_TEMPLATE = """
-                                You are an expert SQL assistant for Microsoft SQL Server.
-                                Given a natural language question, generate an accurate SQL query.
-                                
-                                Below is the relevant part of the database schema (JSON format) for your reference:
-                                {database_schema}
-                                
-                                Pay special attention to the "relationships" section for each table. It contains:
-                                - "foreign_keys": Foreign keys in this table that reference other tables
-                                - "referenced_by": Other tables that have foreign keys referencing this table
-                                
-                                Use these relationships to determine the correct JOIN conditions between tables.
-                                
-                                Rules:
-                                1. Return ONLY the raw SQL query
-                                2. Don't include any explanations or markdown formatting
-                                3. Use proper JOINs and WHERE clauses as needed
-                                4. Include all relevant columns
-                                5. Pay careful attention to the database schema
-                                6. The db schema format has table names as keys (format: schema_name.table_name),
-                                 which values include:
-                                   - "columns": Column definitions
-                                   - "relationships": Foreign key relationships with other tables
-                                7. Only SELECT queries are allowed
-                                
-                                Question: "{question}"
-                            """
-
-    _REFINE_PROMPT_TEMPLATE = """
-                                You are an expert SQL assistant for Microsoft SQL Server.
-                                I previously asked you to generate a SQL query for the following question:
-                                
-                                Question: "{question}"
-                                
-                                You generated this SQL query:
-                                ```sql
-                                {original_query}
-                                ```
-                                
-                                But when executing it, the following error occurred:
-                                ```
-                                {error_message}
-                                ```
-                                
-                                Please fix the SQL query to address this error.
-                                Pay special attention to the "relationships" section for each table in the schema. It contains:
-                                - "foreign_keys": Foreign keys in this table that reference other tables
-                                - "referenced_by": Other tables that have foreign keys referencing this table
-                                
-                                Use these relationships to determine the correct JOIN conditions between tables.
-                                
-                                Only return the corrected SQL query with no explanations or markdown.
-                                
-                                Below is the relevant part of the database schema (JSON format) for your reference:
-                                {database_schema}
-                            """
 
     def __init__(self, prompt_template: str = None, use_rag: bool = True):
         self._open_ai_llm = OpenAILLM()
@@ -73,8 +73,7 @@ class LLMTextToSQLService:
         self._database_schema_service = DatabaseSchemaService()
         self._schema_excerption_service = SchemaExcerptionService()
         self._config = EnvConfig()
-        self._prompt_template = prompt_template or self._DEFAULT_PROMPT_TEMPLATE
-        self._max_refinement_attempts = 3
+        self._prompt_template = prompt_template or _DEFAULT_PROMPT_TEMPLATE
         self._use_rag = use_rag
         self._last_executed_prompt = None
 
@@ -107,7 +106,9 @@ class LLMTextToSQLService:
             )
 
         # Generate a refined query
-        refined_query = self._refine_sql(question, original_query, error_message, attempt)
+        refined_query = self._refine_sql(
+            question, original_query, error_message, attempt
+        )
 
         # Try to execute the refined query
         try:
@@ -132,7 +133,8 @@ class LLMTextToSQLService:
                 # Retrieve relevant schema using RAG
                 relevant_schema = (
                     self._schema_excerption_service.retrieve_relevant_schema(
-                        natural_language_question, 3
+                        natural_language_question,
+                        self._initial_amount_of_top_k_for_similarity_search,
                     )
                 )
             else:
@@ -166,7 +168,9 @@ class LLMTextToSQLService:
                 # For refinement, retrieve schema that might be more relevant based on the error
                 relevant_schema = (
                     self._schema_excerption_service.retrieve_relevant_schema(
-                        combined_query, top_k=3 * (attempt + 1)  # Increase top_k for a refinement attempts
+                        combined_query,
+                        top_k=self._initial_amount_of_top_k_for_similarity_search
+                        * (attempt + 1),  # Increase top_k for a refinement attempts
                     )
                 )
             else:
@@ -209,7 +213,7 @@ class LLMTextToSQLService:
         # Format the schema with proper indentation
         formatted_schema = json.dumps(database_schema, indent=2)
 
-        return self._REFINE_PROMPT_TEMPLATE.format(
+        return _REFINE_PROMPT_TEMPLATE.format(
             database_schema=formatted_schema,
             question=question,
             original_query=original_query,
@@ -221,3 +225,11 @@ class LLMTextToSQLService:
 
     def get_last_executed_prompt(self) -> str:
         return self._last_executed_prompt
+
+    @property
+    def _initial_amount_of_top_k_for_similarity_search(self) -> int:
+        return 5
+
+    @property
+    def _max_refinement_attempts(self) -> int:
+        return 3
