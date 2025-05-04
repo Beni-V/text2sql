@@ -10,9 +10,6 @@ for i in {1..50}; do
     fi
 done
 
-# Fix permissions on backup file for Windows compatibility
-chmod 644 /var/opt/mssql/backup/database.bak
-
 # Extract logical file names from the backup file
 echo "Extracting logical file names from backup..."
 FILELISTONLY_OUTPUT=$(/opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$SA_PASSWORD" -Q "RESTORE FILELISTONLY FROM DISK = '/var/opt/mssql/backup/database.bak'" -C)
@@ -22,11 +19,9 @@ LOG_FILE_NAME=$(echo "$FILELISTONLY_OUTPUT" | grep -E 'Row|ldf|LDF' | grep -v "m
 echo "Found logical files: DATA='$DATA_FILE_NAME', LOG='$LOG_FILE_NAME'"
 
 # Create a temporary restore script with the environment variables
-# Replace any hyphens in database name with underscores for SQL compatibility
-SAFE_SQL_DATABASE=$(echo "$SQL_DATABASE" | tr '-' '_')
-echo "Using database: $SAFE_SQL_DATABASE"
+echo "Using database: $SQL_DATABASE"
 cp /usr/src/app/restore.sql /tmp/restore_temp.sql
-sed -i "s/__SQL_DATABASE__/$SAFE_SQL_DATABASE/g" /tmp/restore_temp.sql
+sed -i "s/__SQL_DATABASE__/$SQL_DATABASE/g" /tmp/restore_temp.sql
 sed -i "s/__DATA_FILE_NAME__/$DATA_FILE_NAME/g" /tmp/restore_temp.sql
 sed -i "s/__LOG_FILE_NAME__/$LOG_FILE_NAME/g" /tmp/restore_temp.sql
 
