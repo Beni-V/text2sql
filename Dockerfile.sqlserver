@@ -16,8 +16,9 @@ RUN mkdir -p /var/opt/mssql/backup
 # Switch to root to change permissions
 USER root
 
-# Grant permissions for the init script to be executable
-RUN chmod +x /usr/src/app/init.sh
+# Grant permissions for the init script to be executable and ensure backup directory is accessible
+RUN chmod +x /usr/src/app/init.sh && \
+    chmod -R 777 /var/opt/mssql/backup
 
 # Switch back to the default user
 USER mssql
