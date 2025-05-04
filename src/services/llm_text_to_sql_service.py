@@ -1,18 +1,12 @@
+import json
 from src.infrastructure.config import EnvConfig
 from src.infrastructure.database import Database
 from src.infrastructure.exceptions import QueryGenerationError, QueryError
 from src.infrastructure.open_ai_llm import OpenAILLM
 from src.services.database_schema_service import DatabaseSchemaService
 from src.services.schema_excerption_service import SchemaExcerptionService
-import json
 
-_DEFAULT_PROMPT_TEMPLATE = """
-You are an expert SQL assistant for Microsoft SQL Server.
-Given a natural language question, generate an accurate SQL query.
-
-Below is the relevant part of the database schema (JSON format) for your reference:
-{database_schema}
-
+_GENERATION_RULES = """
 Pay special attention to the "relationships" section for each table. It contains:
 - "foreign_keys": Foreign keys in this table that reference other tables
 - "referenced_by": Other tables that have foreign keys referencing this table
@@ -30,18 +24,28 @@ Rules:
    - "columns": Column definitions
    - "relationships": Foreign key relationships with other tables
 7. Only SELECT queries are allowed
+"""
 
-Question: "{question}"
+_DEFAULT_PROMPT_TEMPLATE = """
+You are an expert SQL assistant for Microsoft SQL Server.
+Given a natural language query, generate an accurate SQL query.
+
+Below is the relevant part of the database schema (JSON format) for your reference:
+{database_schema}
+
+{generation_rules}
+
+Natural Language Query: "{natural_language_query}"
 """
 
 _REFINE_PROMPT_TEMPLATE = """
 You are an expert SQL assistant for Microsoft SQL Server.
-I previously asked you to generate a SQL query for the following question:
+I previously asked you to generate an SQL query for the following natural language query:
 
-Question: "{question}"
+Natural Language Query: "{natural_language_query}"
 
 You generated this SQL query:
-```sql
+```
 {original_query}
 ```
 
@@ -51,21 +55,16 @@ But when executing it, the following error occurred:
 ```
 
 Please fix the SQL query to address this error.
-Pay special attention to the "relationships" section for each table in the schema. It contains:
-- "foreign_keys": Foreign keys in this table that reference other tables
-- "referenced_by": Other tables that have foreign keys referencing this table
 
-Use these relationships to determine the correct JOIN conditions between tables.
-
-Only return the corrected SQL query with no explanations or markdown.
+{generation_rules}
 
 Below is the relevant part of the database schema (JSON format) for your reference:
 {database_schema}
 """
 
-class LLMTextToSQLService:
-    """Service for generating SQL queries from natural language questions using OpenAI LLM."""
 
+class LLMTextToSQLService:
+    """Service for generating SQL queries from natural language quries using OpenAI LLM."""
 
     def __init__(self, prompt_template: str = None, use_rag: bool = True):
         self._open_ai_llm = OpenAILLM()
@@ -73,13 +72,12 @@ class LLMTextToSQLService:
         self._database_schema_service = DatabaseSchemaService()
         self._schema_excerption_service = SchemaExcerptionService()
         self._config = EnvConfig()
-        self._prompt_template = prompt_template or _DEFAULT_PROMPT_TEMPLATE
         self._use_rag = use_rag
         self._last_executed_prompt = None
 
-    def generate_and_execute_sql(self, natural_language_question: str) -> dict:
+    def generate_and_execute_sql(self, natural_language_query: str) -> dict:
         """Generate SQL from natural language, execute it, and refine if there are errors."""
-        sql_query = self.generate_sql(natural_language_question)
+        sql_query = self.generate_sql(natural_language_query)
 
         try:
             result = self._database.execute_query(sql_query)
@@ -92,11 +90,11 @@ class LLMTextToSQLService:
         except QueryError as error:
             # If execution fails, try to refine the query
             return self._refine_and_execute(
-                natural_language_question, sql_query, str(error)
+                natural_language_query, sql_query, str(error)
             )
 
     def _refine_and_execute(
-        self, question: str, original_query: str, error_message: str, attempt: int = 1
+        self, natural_language_query: str, original_query: str, error_message: str, attempt: int = 1
     ) -> dict:
         """Refine the SQL query based on error feedback and execute it again."""
         if attempt > self._max_refinement_attempts:
@@ -107,7 +105,7 @@ class LLMTextToSQLService:
 
         # Generate a refined query
         refined_query = self._refine_sql(
-            question, original_query, error_message, attempt
+            natural_language_query, original_query, error_message, attempt
         )
 
         # Try to execute the refined query
@@ -124,101 +122,89 @@ class LLMTextToSQLService:
         except QueryError as error:
             # If still failing, try to refine again recursively
             return self._refine_and_execute(
-                question, refined_query, str(error), attempt + 1
+                natural_language_query, refined_query, str(error), attempt + 1
             )
 
-    def generate_sql(self, natural_language_question: str) -> str:
+    def generate_sql(self, natural_language_query: str) -> str:
         try:
-            if self._use_rag:
-                # Retrieve relevant schema using RAG
-                relevant_schema = (
-                    self._schema_excerption_service.retrieve_relevant_schema(
-                        natural_language_question,
-                        self._initial_amount_of_top_k_for_similarity_search,
-                    )
-                )
-            else:
-                # Use the full schema for regular generation
-                relevant_schema = self._database_schema_service.retrieve(use_cache=True)
+            relevant_schema = self._get_schema(natural_language_query)
 
             # Construct prompt with schema
-            prompt = self._construct_prompt(relevant_schema, natural_language_question)
+            prompt = LLMTextToSQLService._construct_prompt(
+                relevant_schema, natural_language_query
+            )
 
             # Update the last executed prompt
             self._last_executed_prompt = prompt
 
-            return (
+            return self._cleanup_generated_query(
                 self._open_ai_llm.generate_text(prompt)
-                .replace("```sql", "")
-                .replace("```", "")
-                .strip()
             )
 
         except Exception as e:
             raise QueryGenerationError(f"Failed to generate SQL: {str(e)}")
 
+    def _get_schema(self, natural_language_query: str) -> dict:
+        """Retrieve the relevant schema if RAG is enabled, otherwise use the full schema."""
+        if self._use_rag:
+            # Retrieve relevant schema using RAG
+            return self._schema_excerption_service.retrieve_relevant_schema(
+                natural_language_query,
+                self._initial_amount_of_top_k_for_similarity_search,
+            )
+        else:
+            # Use the full schema for regular generation
+            return self._database_schema_service.retrieve(use_cache=True)
+
     def _refine_sql(
-        self, question: str, original_query: str, error_message: str, attempt: int
+        self, natural_language_query: str, original_query: str, error_message: str, attempt: int
     ) -> str:
         """Refine an SQL query using LLM based on execution error feedback."""
         try:
-            combined_query = f"{question} {error_message} {original_query}"
+            combined_query = f"{natural_language_query} {error_message} {original_query}"
 
-            if self._use_rag:
-                # For refinement, retrieve schema that might be more relevant based on the error
-                relevant_schema = (
-                    self._schema_excerption_service.retrieve_relevant_schema(
-                        combined_query,
-                        top_k=self._initial_amount_of_top_k_for_similarity_search
-                        * (attempt + 1),  # Increase top_k for a refinement attempts
-                    )
-                )
-            else:
-                # Use the full schema for regular generation
-                relevant_schema = self._database_schema_service.retrieve(use_cache=True)
+            relevant_schema = self._get_schema(combined_query)
 
-            prompt = self._construct_refine_prompt(
-                relevant_schema, question, original_query, error_message
+            prompt = LLMTextToSQLService._construct_refine_prompt(
+                relevant_schema, natural_language_query, original_query, error_message
             )
 
             # Update the last executed prompt
             self._last_executed_prompt = prompt
 
-            return (
+            return self._cleanup_generated_query(
                 self._open_ai_llm.generate_text(prompt)
-                .replace("```sql", "")
-                .replace("```", "")
-                .strip()
             )
+
         except Exception as e:
             raise QueryGenerationError(f"Failed to refine SQL: {str(e)}")
 
-    def _construct_prompt(
-        self, database_schema: dict, natural_language_question: str
-    ) -> str:
-        # Format the schema with proper indentation
-        formatted_schema = json.dumps(database_schema, indent=2)
-
-        return self._prompt_template.format(
-            database_schema=formatted_schema, question=natural_language_question
+    @staticmethod
+    def _construct_prompt(database_schema: dict, natural_language_query: str) -> str:
+        return _DEFAULT_PROMPT_TEMPLATE.format(
+            database_schema=(json.dumps(database_schema, indent=2)),
+            natural_language_query=natural_language_query,
+            generation_rules=_GENERATION_RULES,
         )
 
+    @staticmethod
     def _construct_refine_prompt(
-        self,
         database_schema: dict,
-        question: str,
+        natural_language_query: str,
         original_query: str,
         error_message: str,
     ) -> str:
-        # Format the schema with proper indentation
-        formatted_schema = json.dumps(database_schema, indent=2)
-
         return _REFINE_PROMPT_TEMPLATE.format(
-            database_schema=formatted_schema,
-            question=question,
+            database_schema=(json.dumps(database_schema, indent=2)),
+            natural_language_query=natural_language_query,
             original_query=original_query,
             error_message=error_message,
+            generation_rules=_GENERATION_RULES,
         )
+
+    @staticmethod
+    def _cleanup_generated_query(generated_query: str) -> str:
+        return generated_query.replace("```sql", "").replace("```", "").strip()
 
     def set_generation_mode(self, use_rag: bool) -> None:
         self._use_rag = use_rag

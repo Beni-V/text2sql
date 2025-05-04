@@ -23,36 +23,43 @@ class SidebarSchemaDisplay:
 
 
 class QueryInput:
-    @staticmethod
-    def render() -> tuple[None | str, bool | None]:
-        question = st.text_input(
-            "Enter your question:",
-            placeholder="e.g. Show me all employees in the Sales department",
-        )
+    def render(self) -> tuple[None | str, bool | None]:
+        # Use a form to handle Enter key press
+        with st.form(key="query_form"):
+            natural_language_query = st.text_input(
+                "Enter your natural language query:",
+                placeholder="e.g. Show me all employees in the Sales department",
+            )
 
-        use_rag = QueryInput._display_and_get_generation_mode()
+            generation_mode = self._display_and_get_generation_mode()
+            use_rag = True if generation_mode == self._rag_mode_option else False
 
-        if st.button("Generate and Execute SQL"):
-            if question:
-                return question, use_rag
-            else:
-                st.warning("Please enter a question first")
+            # This button will be triggered when Enter is pressed or when clicked
+            submit_button = st.form_submit_button("Generate and Execute SQL")
+
+            if submit_button:
+                if natural_language_query:
+                    return natural_language_query, use_rag
+                else:
+                    st.warning("Please enter a query first")
 
         return None, None
 
-    @staticmethod
-    def _display_and_get_generation_mode() -> bool:
-        rag_mode_option = "RAG (Retrieval-Augmented Generation)"
-        regular_mode_option = "Regular (Full Schema)"
-
-        generation_mode = st.radio(
+    def _display_and_get_generation_mode(self) -> str:
+        return st.radio(
             "Generation Mode:",
-            options=[rag_mode_option, regular_mode_option],
+            options=[self._rag_mode_option, self._regular_mode_option],
             index=0,
             help="RAG uses only relevant parts of the schema. Regular uses the entire schema.",
         )
 
-        return True if generation_mode == rag_mode_option else False
+    @property
+    def _rag_mode_option(self) -> str:
+        return "RAG (Retrieval-Augmented Generation)"
+
+    @property
+    def _regular_mode_option(self) -> str:
+        return "Regular (Full Schema)"
 
 
 class SQLQueryProcessor:
@@ -61,7 +68,7 @@ class SQLQueryProcessor:
     def __init__(self):
         self._llm_service = LLMTextToSQLService()
 
-    def process_query(self, question: str, use_rag: bool) -> None:
+    def process_query(self, natural_language_query: str, use_rag: bool) -> None:
         with st.spinner("Processing..."):
             try:
                 # Set the generation mode
@@ -72,7 +79,7 @@ class SQLQueryProcessor:
                 st.info(f"Using {mode_display} generation mode")
 
                 # Use the generate_and_execute_sql method that handles refinement
-                result = self._llm_service.generate_and_execute_sql(question)
+                result = self._llm_service.generate_and_execute_sql(natural_language_query)
 
                 # Display the SQL query
                 st.success("Generated SQL Query")
@@ -174,7 +181,7 @@ class UI:
         UI._configure_page()
 
         self._sidebar_schema_display.render()
-        question, use_rag = self._query_input.render()
+        natural_language_query, use_rag = self._query_input.render()
 
-        if question:
-            self._query_processor.process_query(question, use_rag)
+        if natural_language_query:
+            self._query_processor.process_query(natural_language_query, use_rag)

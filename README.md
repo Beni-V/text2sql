@@ -2,11 +2,11 @@
 
 ## Introduction
 
-SQL2Text is a tool that translates natural language questions into SQL queries for Microsoft SQL Server databases. It allows users without SQL knowledge to extract insights directly from databases using plain English.
+Text2SQL is a tool that translates natural language queries into SQL queries for Microsoft SQL Server databases. It allows users without SQL knowledge to extract insights directly from databases using plain English.
 
 ## Features
 
-- **Natural Language to SQL Conversion**: Translate English questions into SQL Server queries
+- **Natural Language to SQL Conversion**: Translate English natural language queries into SQL Server queries
 - **Dynamic Schema Retrieval**: Automatically analyze any SQL Server database backup file structure
 - **Query Execution**: Run generated SQL and display formatted results
 - **Query Refinement**: Automatically refine queries that encounter execution errors (up to 3 attempts)
@@ -98,9 +98,9 @@ The application implements a layered architecture where higher-level layers depe
 
 1. **Schema Context**: Database schema is retrieved from SQL Server and cached
 2. **Schema Ingestion**: Schema is processed into documents and stored in a vector database
-3. **User Input**: User enters a natural language question via the Streamlit UI
+3. **User Input**: User enters a natural language queries via the Streamlit UI
 4. **RAG Processing**: If RAG mode is enabled, only relevant schema parts are retrieved based on the query
-5. **LLM Processing**: Question and schema are sent to OpenAI API via a crafted prompt
+5. **LLM Processing**: Natural language queries and schema are sent to OpenAI API via a crafted prompt
 6. **SQL Generation**: LLM generates an SQL query based on the natural language
 7. **Query Execution**: Generated SQL is executed against the database
 8. **Error Handling**: If execution fails, query is refined with more schema context and retried (up to 3 times)
