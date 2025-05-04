@@ -1,6 +1,5 @@
 import json
 
-from typing import List, Dict, Any
 from langchain_core.documents import Document
 
 from src.services.schema_ingestion_service import SchemaIngestionService
@@ -14,7 +13,7 @@ class SchemaExcerptionService(metaclass=Singleton):
         self._schema_ingestion_service = SchemaIngestionService()
         self._schema_ingestion_service.ingest_schema()  # Ensure schema is ingested
 
-    def retrieve_relevant_schema(self, query: str, top_k: int = 10) -> dict:
+    def retrieve_relevant_schema(self, query: str, top_k: int) -> dict:
         """Retrieve relevant schema information based on a query."""
         # Get the vector store
         vector_store = self._schema_ingestion_service.vector_store

@@ -107,7 +107,7 @@ class LLMTextToSQLService:
             )
 
         # Generate a refined query
-        refined_query = self._refine_sql(question, original_query, error_message)
+        refined_query = self._refine_sql(question, original_query, error_message, attempt)
 
         # Try to execute the refined query
         try:
@@ -132,7 +132,7 @@ class LLMTextToSQLService:
                 # Retrieve relevant schema using RAG
                 relevant_schema = (
                     self._schema_excerption_service.retrieve_relevant_schema(
-                        natural_language_question
+                        natural_language_question, 3
                     )
                 )
             else:
@@ -156,7 +156,7 @@ class LLMTextToSQLService:
             raise QueryGenerationError(f"Failed to generate SQL: {str(e)}")
 
     def _refine_sql(
-        self, question: str, original_query: str, error_message: str
+        self, question: str, original_query: str, error_message: str, attempt: int
     ) -> str:
         """Refine an SQL query using LLM based on execution error feedback."""
         try:
@@ -166,7 +166,7 @@ class LLMTextToSQLService:
                 # For refinement, retrieve schema that might be more relevant based on the error
                 relevant_schema = (
                     self._schema_excerption_service.retrieve_relevant_schema(
-                        combined_query, top_k=15  # Increase top_k for refinement
+                        combined_query, top_k=3 * (attempt + 1)  # Increase top_k for a refinement attempts
                     )
                 )
             else:
@@ -217,7 +217,6 @@ class LLMTextToSQLService:
         )
 
     def set_generation_mode(self, use_rag: bool) -> None:
-        """Set the generation mode to either 'rag' or 'regular'."""
         self._use_rag = use_rag
 
     def get_last_executed_prompt(self) -> str:
