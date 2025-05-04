@@ -1,5 +1,3 @@
-from typing import Any
-
 import pandas as pd
 import streamlit as st
 
@@ -88,6 +86,15 @@ class SQLQueryProcessor:
 
                 # Display the query results
                 self._display_results(result["result"])
+                
+                # Display the last executed prompt
+                with st.expander("View last executed prompt", expanded=False):
+                    last_prompt = self._llm_service.get_last_executed_prompt()
+                    if last_prompt:
+                        st.markdown("##### Prompt sent to LLM")
+                        st.text(last_prompt)
+                    else:
+                        st.info("No prompt has been executed yet")
 
             except Exception as e:
                 st.error(f"Error: {str(e)}")

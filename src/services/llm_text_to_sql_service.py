@@ -3,7 +3,8 @@ from src.infrastructure.database import Database
 from src.infrastructure.exceptions import QueryGenerationError, QueryError
 from src.infrastructure.open_ai_llm import OpenAILLM
 from src.services.database_schema_service import DatabaseSchemaService
-from src.services.schema_retrieval_service import SchemaExcerptionService
+from src.services.schema_excerption_service import SchemaExcerptionService
+import json
 
 
 class LLMTextToSQLService:
@@ -75,6 +76,7 @@ class LLMTextToSQLService:
         self._prompt_template = prompt_template or self._DEFAULT_PROMPT_TEMPLATE
         self._max_refinement_attempts = 3
         self._use_rag = use_rag
+        self._last_executed_prompt = None
 
     def generate_and_execute_sql(self, natural_language_question: str) -> dict:
         """Generate SQL from natural language, execute it, and refine if there are errors."""
@@ -140,6 +142,9 @@ class LLMTextToSQLService:
             # Construct prompt with schema
             prompt = self._construct_prompt(relevant_schema, natural_language_question)
 
+            # Update the last executed prompt
+            self._last_executed_prompt = prompt
+
             return (
                 self._open_ai_llm.generate_text(prompt)
                 .replace("```sql", "")
@@ -157,7 +162,7 @@ class LLMTextToSQLService:
         try:
             combined_query = f"{question} {error_message} {original_query}"
 
-            if self._use_rag == "rag":
+            if self._use_rag:
                 # For refinement, retrieve schema that might be more relevant based on the error
                 relevant_schema = (
                     self._schema_excerption_service.retrieve_relevant_schema(
@@ -171,6 +176,10 @@ class LLMTextToSQLService:
             prompt = self._construct_refine_prompt(
                 relevant_schema, question, original_query, error_message
             )
+            
+            # Update the last executed prompt
+            self._last_executed_prompt = prompt
+            
             return (
                 self._open_ai_llm.generate_text(prompt)
                 .replace("```sql", "")
@@ -183,8 +192,11 @@ class LLMTextToSQLService:
     def _construct_prompt(
         self, database_schema: dict, natural_language_question: str
     ) -> str:
+        # Format the schema with proper indentation
+        formatted_schema = json.dumps(database_schema, indent=2)
+        
         return self._prompt_template.format(
-            database_schema=database_schema, question=natural_language_question
+            database_schema=formatted_schema, question=natural_language_question
         )
 
     def _construct_refine_prompt(
@@ -194,8 +206,11 @@ class LLMTextToSQLService:
         original_query: str,
         error_message: str,
     ) -> str:
+        # Format the schema with proper indentation
+        formatted_schema = json.dumps(database_schema, indent=2)
+        
         return self._REFINE_PROMPT_TEMPLATE.format(
-            database_schema=database_schema,
+            database_schema=formatted_schema,
             question=question,
             original_query=original_query,
             error_message=error_message,
@@ -204,3 +219,6 @@ class LLMTextToSQLService:
     def set_generation_mode(self, use_rag: bool) -> None:
         """Set the generation mode to either 'rag' or 'regular'."""
         self._use_rag = use_rag
+
+    def get_last_executed_prompt(self) -> str:
+        return self._last_executed_prompt
