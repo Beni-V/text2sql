@@ -66,7 +66,7 @@ Below is the relevant part of the database schema (JSON format) for your referen
 class LLMTextToSQLService:
     """Service for generating SQL queries from natural language quries using OpenAI LLM."""
 
-    def __init__(self, prompt_template: str = None, use_rag: bool = True):
+    def __init__(self, use_rag: bool = True):
         self._open_ai_llm = OpenAILLM()
         self._database = Database()
         self._database_schema_service = DatabaseSchemaService()

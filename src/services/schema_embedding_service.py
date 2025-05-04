@@ -14,10 +14,9 @@ class SchemaEmbeddingService(metaclass=Singleton):
     def __init__(self):
         self._database_schema_service = DatabaseSchemaService()
         self._config = EnvConfig()
-        self._embeddings = OpenAIEmbeddings(
-            openai_api_key=self._config.openai_api_key, model="text-embedding-3-small"
-        )
+        self._embeddings = OpenAIEmbeddings(model="text-embedding-3-small")
         self._vector_store = None
+        self._embedded = False
 
     @property
     def _vector_store_path(self) -> str:
@@ -26,8 +25,9 @@ class SchemaEmbeddingService(metaclass=Singleton):
     def embed_schema(self) -> None:
         """Embed database schema into a vector store."""
         # Check if the vector store already exists
-        if self._vector_store_exists():
+        if not self._embedded:
             self._vector_store = self._load_vector_store()
+            self._embedded = True
             return
 
         # Get the schema
