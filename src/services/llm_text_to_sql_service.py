@@ -28,8 +28,8 @@ class LLMTextToSQLService:
                                 3. Use proper JOINs and WHERE clauses as needed
                                 4. Include all relevant columns
                                 5. Pay careful attention to the database schema
-                                6. The db schema format has table names as keys, which values include:
-                                   - "table_schema_name": The schema the table belongs to
+                                6. The db schema format has table names as keys (schema_name.table_name),
+                                 which values include:
                                    - "columns": Column definitions
                                    - "relationships": Foreign key relationships with other tables
                                 
