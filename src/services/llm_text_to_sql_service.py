@@ -176,10 +176,10 @@ class LLMTextToSQLService:
             prompt = self._construct_refine_prompt(
                 relevant_schema, question, original_query, error_message
             )
-            
+
             # Update the last executed prompt
             self._last_executed_prompt = prompt
-            
+
             return (
                 self._open_ai_llm.generate_text(prompt)
                 .replace("```sql", "")
@@ -194,7 +194,7 @@ class LLMTextToSQLService:
     ) -> str:
         # Format the schema with proper indentation
         formatted_schema = json.dumps(database_schema, indent=2)
-        
+
         return self._prompt_template.format(
             database_schema=formatted_schema, question=natural_language_question
         )
@@ -208,7 +208,7 @@ class LLMTextToSQLService:
     ) -> str:
         # Format the schema with proper indentation
         formatted_schema = json.dumps(database_schema, indent=2)
-        
+
         return self._REFINE_PROMPT_TEMPLATE.format(
             database_schema=formatted_schema,
             question=question,

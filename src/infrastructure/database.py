@@ -2,10 +2,8 @@ import json
 import os
 import time
 import pyodbc
-
-from typing import Dict, Any, Optional
-from src.infrastructure.exceptions import QueryError
 from src.infrastructure.config import EnvConfig
+from src.infrastructure.exceptions import QueryError
 from src.utils import Singleton
 
 

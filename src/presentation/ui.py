@@ -30,16 +30,7 @@ class QueryInput:
             placeholder="e.g. Show me all employees in the Sales department",
         )
 
-        generation_mode = st.radio(
-            "Generation Mode:",
-            options=["RAG (Retrieval-Augmented Generation)", "Regular (Full Schema)"],
-            index=0,
-            help="RAG uses only relevant parts of the schema. Regular uses the entire schema.",
-        )
-
-        use_rag = (
-            True if generation_mode == "RAG (Retrieval-Augmented Generation)" else False
-        )
+        use_rag = QueryInput._display_and_get_generation_mode()
 
         if st.button("Generate and Execute SQL"):
             if question:
@@ -48,6 +39,20 @@ class QueryInput:
                 st.warning("Please enter a question first")
 
         return None, None
+
+    @staticmethod
+    def _display_and_get_generation_mode() -> bool:
+        rag_mode_option = "RAG (Retrieval-Augmented Generation)"
+        regular_mode_option = "Regular (Full Schema)"
+
+        generation_mode = st.radio(
+            "Generation Mode:",
+            options=[rag_mode_option, regular_mode_option],
+            index=0,
+            help="RAG uses only relevant parts of the schema. Regular uses the entire schema.",
+        )
+
+        return True if generation_mode == rag_mode_option else False
 
 
 class SQLQueryProcessor:
@@ -75,38 +80,41 @@ class SQLQueryProcessor:
 
                 # Display refinement information if the query was refined
                 if result["refined"]:
-                    with st.expander("Query was refined due to errors", expanded=True):
-                        st.warning(
-                            f"Original query had errors and was refined {result['refinement_attempts']} time(s)"
-                        )
-                        st.markdown("##### Original Query")
-                        st.code(result["original_query"], language="sql")
-                        st.markdown("##### Error Message")
-                        st.code(result["error_message"])
+                    self._display_original_query(result)
 
-                # Display the query results
                 self._display_results(result["result"])
-                
-                # Display the last executed prompt
-                with st.expander("View last executed prompt", expanded=False):
-                    last_prompt = self._llm_service.get_last_executed_prompt()
-                    if last_prompt:
-                        st.markdown("##### Prompt sent to LLM")
-                        st.text(last_prompt)
-                    else:
-                        st.info("No prompt has been executed yet")
+                self._display_executed_prompt()
 
             except Exception as e:
                 st.error(f"Error: {str(e)}")
 
-    def _display_results(self, result):
+    def _display_executed_prompt(self) -> None:
+        with st.expander("View last executed prompt", expanded=False):
+            last_prompt = self._llm_service.get_last_executed_prompt()
+            if last_prompt:
+                st.markdown("##### Prompt sent to LLM")
+                st.text(last_prompt)
+            else:
+                st.info("No prompt has been executed yet")
+
+    @staticmethod
+    def _display_original_query(result: dict) -> None:
+        with st.expander("Query was refined due to errors", expanded=False):
+            st.warning(
+                f"Original query had errors and was refined {result['refinement_attempts']} time(s)"
+            )
+            st.markdown("##### Original Query")
+            st.code(result["original_query"], language="sql")
+            st.markdown("##### Error Message")
+            st.code(result["error_message"])
+
+    @staticmethod
+    def _display_results(result: dict) -> None:
         st.success("Query Results")
 
         if result.get("rows"):
             df = pd.DataFrame(result.get("rows", []))
             st.dataframe(df)
-
-            # Display query statistics
             st.info(f"Execution time: {result.get('execution_time', 0):.3f} seconds")
         else:
             st.info("Query executed successfully, but returned no results")
