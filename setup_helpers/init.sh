@@ -22,11 +22,8 @@ LOG_FILE_NAME=$(echo "$FILELISTONLY_OUTPUT" | grep -E 'Row|ldf|LDF' | grep -v "m
 echo "Found logical files: DATA='$DATA_FILE_NAME', LOG='$LOG_FILE_NAME'"
 
 # Create a temporary restore script with the environment variables
-# Replace any hyphens in database name with underscores for SQL compatibility
-SAFE_SQL_DATABASE=$(echo "$SQL_DATABASE" | tr '-' '_')
-echo "Using database: $SAFE_SQL_DATABASE"
 cp /usr/src/app/restore.sql /tmp/restore_temp.sql
-sed -i "s/__SQL_DATABASE__/$SAFE_SQL_DATABASE/g" /tmp/restore_temp.sql
+sed -i "s/__SQL_DATABASE__/$SQL_DATABAASE/g" /tmp/restore_temp.sql
 sed -i "s/__DATA_FILE_NAME__/$DATA_FILE_NAME/g" /tmp/restore_temp.sql
 sed -i "s/__LOG_FILE_NAME__/$LOG_FILE_NAME/g" /tmp/restore_temp.sql
 
