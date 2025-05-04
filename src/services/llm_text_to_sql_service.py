@@ -94,7 +94,11 @@ class LLMTextToSQLService:
             )
 
     def _refine_and_execute(
-        self, natural_language_query: str, original_query: str, error_message: str, attempt: int = 1
+        self,
+        natural_language_query: str,
+        original_query: str,
+        error_message: str,
+        attempt: int = 1,
     ) -> dict:
         """Refine the SQL query based on error feedback and execute it again."""
         if attempt > self._max_refinement_attempts:
@@ -157,11 +161,17 @@ class LLMTextToSQLService:
             return self._database_schema_service.retrieve(use_cache=True)
 
     def _refine_sql(
-        self, natural_language_query: str, original_query: str, error_message: str, attempt: int
+        self,
+        natural_language_query: str,
+        original_query: str,
+        error_message: str,
+        attempt: int,
     ) -> str:
         """Refine an SQL query using LLM based on execution error feedback."""
         try:
-            combined_query = f"{natural_language_query} {error_message} {original_query}"
+            combined_query = (
+                f"{natural_language_query} {error_message} {original_query}"
+            )
 
             relevant_schema = self._get_schema(combined_query)
 

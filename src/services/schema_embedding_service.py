@@ -8,7 +8,7 @@ from src.services.database_schema_service import DatabaseSchemaService
 from src.utils import Singleton
 
 
-class SchemaIngestionService(metaclass=Singleton):
+class SchemaEmbeddingService(metaclass=Singleton):
     """Service for ingesting database schema into a vector store."""
 
     def __init__(self):
@@ -23,8 +23,8 @@ class SchemaIngestionService(metaclass=Singleton):
     def _vector_store_path(self) -> str:
         return "data/vector_store"
 
-    def ingest_schema(self) -> None:
-        """Ingest database schema into a vector store."""
+    def embed_schema(self) -> None:
+        """Embed database schema into a vector store."""
         # Check if the vector store already exists
         if self._vector_store_exists():
             self._vector_store = self._load_vector_store()
@@ -76,6 +76,6 @@ class SchemaIngestionService(metaclass=Singleton):
     def vector_store(self) -> FAISS:
         """Get the vector store."""
         if self._vector_store is None:
-            self.ingest_schema()
+            self.embed_schema()
 
         return self._vector_store

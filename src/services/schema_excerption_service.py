@@ -2,7 +2,7 @@ import json
 
 from langchain_core.documents import Document
 
-from src.services.schema_ingestion_service import SchemaIngestionService
+from src.services.schema_embedding_service import SchemaEmbeddingService
 from src.utils import Singleton
 
 
@@ -10,8 +10,8 @@ class SchemaExcerptionService(metaclass=Singleton):
     """Service for retrieving relevant schema information based on a query."""
 
     def __init__(self):
-        self._schema_ingestion_service = SchemaIngestionService()
-        self._schema_ingestion_service.ingest_schema()  # Ensure schema is ingested
+        self._schema_ingestion_service = SchemaEmbeddingService()
+        self._schema_ingestion_service.embed_schema()  # Ensure schema is ingested
 
     def retrieve_relevant_schema(self, query: str, top_k: int) -> dict:
         """Retrieve relevant schema information based on a query."""

@@ -79,7 +79,9 @@ class SQLQueryProcessor:
                 st.info(f"Using {mode_display} generation mode")
 
                 # Use the generate_and_execute_sql method that handles refinement
-                result = self._llm_service.generate_and_execute_sql(natural_language_query)
+                result = self._llm_service.generate_and_execute_sql(
+                    natural_language_query
+                )
 
                 # Display the SQL query
                 st.success("Generated SQL Query")

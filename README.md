@@ -55,14 +55,14 @@ The application implements a layered architecture where higher-level layers depe
   - Caches schema to improve performance
   - Formats schema as structured data for LLM context
 
-- **Schema Ingestion Service** (`schema_ingestion_service.py`):
-  - Ingests database schema into a vector store (FAISS)
-  - Creates embeddings for schema tables
+- **Schema Embedding Service** (`schema_embedding_service.py`):
+  - Vectorizes database schema into FAISS.
+  - Create embeddings for schema tables
   - Persists vector store to disk for reuse
 
 - **Schema Excerption Service** (`schema_excerption_service.py`):
-  - Retrieves relevant schema information based on user queries
-  - Uses similarity search to find most relevant schema parts
+  - Retrieve relevant schema information based on user queries
+  - Use similarity search to find most relevant schema parts
   - Dynamically adjusts search scope during query refinement
 
 ### 3. Infrastructure Layer (`src/infrastructure/`)
