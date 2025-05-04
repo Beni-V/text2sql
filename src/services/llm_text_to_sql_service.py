@@ -126,7 +126,7 @@ class LLMTextToSQLService:
 
     def generate_sql(self, natural_language_question: str) -> str:
         try:
-            if self._use_rag == "rag":
+            if self._use_rag:
                 # Retrieve relevant schema using RAG
                 relevant_schema = (
                     self._schema_excerption_service.retrieve_relevant_schema(
