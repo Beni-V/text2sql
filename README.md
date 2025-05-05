@@ -1,4 +1,4 @@
-# SQL2Text: Natural Language to SQL Query Generator
+# Text2SQL: Natural Language to SQL Query Generator
 
 ## Introduction
 
@@ -118,7 +118,7 @@ The application implements a layered architecture where higher-level layers depe
 
 ## How to Run
 
-Running SQL2Text is simple:
+Running Text2SQL is simple:
 
 ### For macOS/Linux:
 1. Clone the repository
