@@ -2,17 +2,18 @@
 
 ## Introduction
 
-SQL2Text is a tool that translates natural language questions into SQL queries for Microsoft SQL Server databases. It allows users without SQL knowledge to extract insights directly from databases using plain English.
+Text2SQL is a tool that translates natural language queries into SQL queries for Microsoft SQL Server databases. It allows users without SQL knowledge to extract insights directly from databases using plain English.
 
 ## Features
 
-- **Natural Language to SQL Conversion**: Translate English questions into SQL Server queries
+- **Natural Language to SQL Conversion**: Translate English natural language queries into SQL Server queries
 - **Dynamic Schema Retrieval**: Automatically analyze any SQL Server database backup file structure
 - **Query Execution**: Run generated SQL and display formatted results
 - **Query Refinement**: Automatically refine queries that encounter execution errors (up to 3 attempts)
 - **Clean and Intuitive UI**: Simple Streamlit interface with database schema viewer
 - **Containerized Deployment**: Docker-based setup for cross-platform execution
 - **Simple Setup Script**: Interactive configuration of environment variables
+- **RAG Support**: Retrieval Augmented Generation for more efficient and accurate SQL query generation
 
 ## Architecture
 
@@ -39,6 +40,7 @@ The application implements a layered architecture where higher-level layers depe
   - Accepting natural language input
   - Showing SQL queries and execution results
   - Handling error displays and refinement information
+  - Selecting between RAG and regular generation modes
 
 ### 2. Services Layer (`src/services/`)
 
@@ -46,11 +48,22 @@ The application implements a layered architecture where higher-level layers depe
   - Converts natural language to SQL using OpenAI
   - Implements query refinement logic for handling errors
   - Manages prompts for initial generation and refinement
+  - Supports both RAG and regular (full schema) generation modes
 
 - **Database Schema Service** (`database_schema_service.py`):
   - Extracts schema information from SQL Server
   - Caches schema to improve performance
   - Formats schema as structured data for LLM context
+
+- **Schema Embedding Service** (`schema_embedding_service.py`):
+  - Vectorizes database schema into FAISS.
+  - Create embeddings for schema tables
+  - Persists vector store to disk for reuse
+
+- **Schema Excerption Service** (`schema_excerption_service.py`):
+  - Retrieve relevant schema information based on user queries
+  - Use similarity search to find most relevant schema parts
+  - Dynamically adjusts search scope during query refinement
 
 ### 3. Infrastructure Layer (`src/infrastructure/`)
 
@@ -84,21 +97,24 @@ The application implements a layered architecture where higher-level layers depe
 ### Data Flow
 
 1. **Schema Context**: Database schema is retrieved from SQL Server and cached
-2. **User Input**: User enters a natural language question via the Streamlit UI
-3. **LLM Processing**: Question and schema are sent to OpenAI API via a crafted prompt
-4. **SQL Generation**: LLM generates an SQL query based on the natural language
-5. **Query Execution**: Generated SQL is executed against the database
-6. **Error Handling**: If execution fails, query is refined and retried (up to 3 times)
-7. **Result Display**: Query and results are displayed to the user
+2. **Schema Ingestion**: Schema is processed into documents and stored in a vector database
+3. **User Input**: User enters a natural language queries via the Streamlit UI
+4. **RAG Processing**: If RAG mode is enabled, only relevant schema parts are retrieved based on the query
+5. **LLM Processing**: Natural language queries and schema are sent to OpenAI API via a crafted prompt
+6. **SQL Generation**: LLM generates an SQL query based on the natural language
+7. **Query Execution**: Generated SQL is executed against the database
+8. **Error Handling**: If execution fails, query is refined with more schema context and retried (up to 3 times)
+9. **Result Display**: Query and results are displayed to the user
 
 ## Tradeoffs
 
 - Only OpenAI API is used for language model integration
 - Only Microsoft SQL Server backup (.bak) files are supported
-- No RAG (Retrieval Augmented Generation) pipeline was implemented
-- No vector search or embeddings were used for schema understanding
+- RAG implementation uses FAISS for vector storage and retrieval
+- OpenAI's text-embedding-3-small model is used for embeddings
 - Database schema is supposed to be relatively stable and can be cached
 - Query refinement within 3 attempts is sufficient for most errors
+- RAG mode dynamically increases schema context during refinement attempts
 
 ## How to Run
 
@@ -128,6 +144,21 @@ Running SQL2Text is simple:
    http://localhost:8501
    ```
 
+## Using RAG vs Regular Mode
+
+The application supports two modes of operation:
+
+- **RAG Mode (default)**: Uses Retrieval Augmented Generation to only include relevant parts of the schema in the prompt. This improves performance by:
+  - Reducing token usage by focusing only on relevant tables
+  - Improving accuracy by reducing noise from irrelevant schema parts
+  - Dynamically expanding context during refinement attempts
+
+- **Regular Mode**: Includes the entire database schema in each prompt. This can be useful for:
+  - Complex queries that might need context from many tables
+  - Debugging when RAG might be missing important schema information
+
+You can switch between modes using the radio buttons in the UI.
+
 ## Development Tools
 
 This project was developed with assistance from Windsurf AI, which was used during the development process to:
@@ -137,3 +168,4 @@ This project was developed with assistance from Windsurf AI, which was used duri
 - Fix containerization issues
 - Research query refinement approaches
 - Writing the skeleton of the Streamlit UI
+- Implementing RAG support for improved query generation
