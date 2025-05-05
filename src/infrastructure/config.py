@@ -1,7 +1,7 @@
 import os
 from typing import Any, Optional
 from dotenv import load_dotenv
-
+import streamlit as st
 from src.utils import Singleton
 
 
@@ -12,7 +12,11 @@ class EnvConfig(metaclass=Singleton):
         load_dotenv()
 
     def get(self, key: str, default: Any = None) -> Optional[str]:
-        return os.getenv(key, default)
+        if os.getenv('ENV') == 'dev':
+            return os.getenv(key, default)
+        else:
+            # use streamlit secretes
+            return st.secrets.get(key, default)
 
     def get_float(self, key: str, default: float = 0.0) -> float:
         return float(self.get(key, default))
