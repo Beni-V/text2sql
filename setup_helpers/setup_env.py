@@ -51,7 +51,7 @@ def generate_env_file():
     # Add the API key to the environment variables
     env_vars["OPENAI_API_KEY"] = openai_api_key
     env_vars["BAK_FILE_PATH"] = bak_file_path
-    env_vars["ENV"] = 'dev'
+    env_vars["ENV"] = "dev"
 
     # Get the project root directory
     script_dir = os.path.dirname(os.path.abspath(__file__))

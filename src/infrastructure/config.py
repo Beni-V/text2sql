@@ -12,7 +12,7 @@ class EnvConfig(metaclass=Singleton):
         load_dotenv()
 
     def get(self, key: str, default: Any = None) -> Optional[str]:
-        if os.getenv('ENV') == 'dev':
+        if os.getenv("ENV") == "dev":
             return os.getenv(key, default)
         else:
             # use streamlit secretes
