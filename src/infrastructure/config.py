@@ -44,3 +44,8 @@ class EnvConfig(metaclass=Singleton):
     @property
     def openai_temperature(self) -> float:
         return self.get_float("OPENAI_TEMPERATURE", 0)
+
+    @property
+    def is_streamlit_prod(self) -> bool:
+        """Check if running in Streamlit production environment."""
+        return self.get("STREAMLIT_SERVER_ENVIRONMENT", "").lower() == "production"

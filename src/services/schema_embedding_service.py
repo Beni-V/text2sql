@@ -14,6 +14,7 @@ class SchemaEmbeddingService(metaclass=Singleton):
     def __init__(self):
         self._database_schema_service = DatabaseSchemaService()
         self._config = EnvConfig()
+        print(f'asdfasdf {len(self._config.openai_api_key)}', {self._config.is_streamlit_prod})
         self._embeddings = OpenAIEmbeddings(model="text-embedding-3-small", api_key=self._config.openai_api_key)
         self._vector_store = None
         self._embedded = False
