@@ -120,6 +120,7 @@ The application implements a layered architecture where higher-level layers depe
 
 Running SQL2Text is simple:
 
+### For macOS/Linux:
 1. Clone the repository
 
 2. Run the setup script:
@@ -137,12 +138,72 @@ Running SQL2Text is simple:
    docker-compose up
    ```
 
-4. Wait for the database restoration and application startup to complete (this may take a few minutes depending on your database size)
+4. Wait for the database restoration and application startup to complete
 
 5. Access the application at:
    ```
    http://localhost:8501
    ```
+
+### For Windows (11):
+1. Install WSL (Windows Subsystem for Linux):
+   ```
+   wsl --install
+   ```
+   This will install WSL
+
+2. Install ubuntu over WSL:
+   ```
+   wsl --install -d Ubuntu
+   ```
+   (For other Windows versions, follow Microsoft's WSL installation guide)
+
+3. Restart your computer when prompted
+
+4. Launch Ubuntu shell:
+   ```
+   wsl -d Ubuntu
+   ```
+
+5. Configure Docker WSL integration:
+   - Open Docker Desktop
+   - Go to Settings → Resources → WSL Integration
+   - Enable integration with your Ubuntu distro
+
+6. In the Ubuntu shell, navigate to the cloned repository
+
+7. Run the setup script:
+   ```
+   sudo python3 setup_helpers/setup_env.py
+   ```
+   Enter values as prompted. For the .bak file path, use WSL format:
+   ```
+   /mnt/c/Users/{your_username}/{path_to_file}
+   ```
+
+8. Build and start containers:
+   ```
+   sudo docker-compose build
+   sudo docker-compose up
+   ```
+
+9. Access the application at:
+   ```
+   http://localhost:8501
+   ```
+
+## Troubleshooting
+
+### Backup File Access Denied Error
+If you encounter the error:
+```
+BackupDiskFile::OpenMedia: Backup device '/var/opt/mssql/backup/database.bak' failed to open. Operating system error 5(Access is denied.).
+```
+Try these solutions:
+1. Move the .bak file into the project directory
+2. Use a relative path instead of absolute path
+3. Ensure the file has proper permissions in WSL
+4. For Windows, verify the file path uses the correct WSL format (/mnt/c/...)
 
 ## Using RAG vs Regular Mode
 
