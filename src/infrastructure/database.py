@@ -16,8 +16,15 @@ class Database(metaclass=Singleton):
     @property
     def _connection_string(self) -> str:
         """Get the connection string for the database."""
+        if os.uname().sysname == "Darwin":
+            driver = "ODBC Driver 18 for SQL Server"
+        elif self._config.is_streamlit_prod:
+            driver = "ODBC Driver 17 for SQL Server"
+        else:
+            driver = "FreeTDS"
+
         return (
-            f"DRIVER={'ODBC Driver 18 for SQL Server' if os.uname().sysname == 'Darwin' or self._config.is_streamlit_prod else 'FreeTDS'};"
+            f"DRIVER={driver};"
             f"SERVER={self._config.db_server},1433;"
             f"DATABASE={self._config.db_name};"
             f"UID={self._config.db_user};"

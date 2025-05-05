@@ -52,4 +52,4 @@ class EnvConfig(metaclass=Singleton):
     @property
     def is_streamlit_prod(self) -> bool:
         """Check if running in Streamlit production environment."""
-        return self.get("STREAMLIT_SERVER_ENVIRONMENT", "").lower() == "production"
+        return self.get("ENV", "").lower() == "production"
